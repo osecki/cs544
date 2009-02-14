@@ -1,6 +1,6 @@
-//import com.altova.*;
-//import com.altova.types.*;
-//import com.IRC.*;
+import com.altova.*;
+import com.altova.types.*;
+import com.IRC.*;
 
 public class CmdLib 
 {
@@ -31,7 +31,7 @@ public class CmdLib
 		String xmlCmd = "";
 		
 		try
-		{/*
+		{
 			
 			//create document
 			com.IRC.IRC2 doc = com.IRC.IRC2.createDocument();	
@@ -65,7 +65,7 @@ public class CmdLib
 			
 			//save XML to String
 			xmlCmd = doc.saveToString(false);
-			*/
+			
 		}
 		catch (Exception e) 
 		{
