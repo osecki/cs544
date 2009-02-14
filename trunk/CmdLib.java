@@ -25,6 +25,66 @@ public class CmdLib
 		return transID++;
 	}
 	
+	public static void ParseIncomingMessage(String xmlMsg)
+	{
+		//We'll parse out the XML message and store the settings in objects
+		//and then let the GUI use them to update itself.
+		//We'll need to define the classes but for now, just create some local
+		//variables
+		
+		
+		try 
+		{
+			//load from string
+			com.IRC.IRC2 doc = com.IRC.IRC2.loadFromString(xmlMsg);
+			
+			//check for VIRC root node
+			if (doc.VIRC.exists())
+			{
+				//Grab the node
+				VIRCType root = doc.VIRC.first();
+				
+				//check for transaction ID
+				if (root.ID.exists())
+				{
+					Long ID = root.ID.getValue();
+				}
+				
+				//check for command node
+				if (root.Cmd.exists())
+				{
+					String command = root.Cmd.first().getValue();
+				}
+				
+				//check for Status node
+				if (root.Stat.exists())
+				{
+					//Grab the node
+					StatType stat = root.Stat.first();
+					
+					//check for status code
+					if (stat.Code.exists())
+					{
+						Long statusCode = stat.Code.first().getValue();
+					}
+					
+					//check for status message
+					if (stat.Msg.exists())
+					{
+						String statusMsg = stat.Msg.first().getValue();
+					}
+				}
+			}
+		} 
+		catch (Exception e) 
+		{
+		}	
+		
+		
+		//if valid message, send to the GUI to do whatever it needs
+		//need to populate objects and trigger the GUI to do something for updating
+		MainForm.UpdateGUI();
+	}
 	
 	//Method to create a conn XML command
 	public static void CreateConnCommand(String nick, String IP, String name, String pass)
@@ -112,93 +172,4 @@ public class CmdLib
 	public static void CreateGetUsersCommand(String channelName)
 	{
 	}
-	
-	
-	/*	EXAMPLE CODE I'LL LEAVE FOR NOW
-	public static String CreateCommand()
-	{	
-		try
-		{
-			
-			//create document
-			com.IRC.IRC2 doc = com.IRC.IRC2.createDocument();
-			
-			//add root node
-			com.IRC.VoiceIRCType root = doc.VoiceIRC.append();
-			
-			//add command node
-			root.CommandName.append().setValue("JoinChannel");
-			
-			//add channel node
-			ChannelClass channelClass = root.Channel.append();
-			
-			//add channel name to channel node
-			channelClass.ChannelName.append().setValue("Software Development");
-			
-			//add user node
-			UserClass userClass = root.User.append();
-			
-			//add user name to user node
-			userClass.UserName.append().setValue("Bill");
-			
-			//save XML to String
-			String xmlString = doc.saveToString(false);
-			
-	//**************************************************************
-			
-			//load from string
-			com.IRC.IRC2 _doc = com.IRC.IRC2.loadFromString(xmlString);
-			
-			//check for VoiceIRC root node
-			if (doc.VoiceIRC.exists())
-			{
-				//Grab the node
-				VoiceIRCType _root = doc.VoiceIRC.first();
-				
-				//Check for Channel node
-				if (_root.Channel.exists())
-				{
-					//Grab it
-					ChannelClass _channelClass =_root.Channel.first();
-					
-					//Check for ChannelName node
-					if (_channelClass.ChannelName.exists())
-					{
-						//Grab the value of ChannelName node
-						String channelName = _channelClass.ChannelName.first().getValue();
-					}
-				}
-				
-				//Check for User node
-				if (_root.User.exists())
-				{
-					//Grab the node
-					UserClass _userClass = _root.User.first();
-					
-					//Check for user name node
-					if (_userClass.UserName.exists())
-					{
-						//Grab the value
-						String userName = _userClass.UserName.first().getValue();
-					}
-				}
-			}
-		} 
-		catch (Exception e) 
-		{
-			e.printStackTrace();
-		}			
-		//   
-		//   ...
-		//   doc.saveToFile("IRC1.xml", true);
-		//
-		// Example code to load and save a structure:
-		//   com.IRC.IRC2 doc = com.IRC.IRC2.loadFromFile("IRC1.xml");
-		//   com.IRC.VoiceIRCType root = doc.VoiceIRC.first();
-		//   ...
-		//   doc.saveToFile("IRC1.xml", true);		
-		
-		return "";
-	}
-	*/
 }
