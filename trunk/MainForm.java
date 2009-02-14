@@ -1,27 +1,22 @@
-import java.awt.BorderLayout;
-import java.awt.Menu;
 import javax.swing.border.TitledBorder;
-
 import javax.swing.JPanel;
 import javax.swing.JFrame;
-import java.awt.Dimension;
-import javax.swing.JTabbedPane;
 import java.awt.Rectangle;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import javax.swing.JToolBar;
 import javax.swing.JMenuBar;
-import java.awt.GridBagLayout;
 import javax.swing.JLabel;
-import java.awt.GridBagConstraints;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.JComboBox;
 import javax.swing.JTextArea;
+import java.awt.event.*;
 
-public class MainForm extends JFrame {
+public class MainForm extends JFrame implements ActionListener
+{
+	private TCPThread tcpThread;
 
 	private static final long serialVersionUID = 1L;
 	private JPanel jContentPane = null;
@@ -40,7 +35,7 @@ public class MainForm extends JFrame {
 	private JComboBox cboChannel = null;
 	private JLabel lblChan2 = null;
 	private JTextField txtChannel = null;
-	private JButton btnChannel = null;
+	private JButton btnJoin = null;
 	private JButton btnPart = null;
 	private JButton btnDisconnect = null;
 	private JPanel pnlChannelInfo = null;
@@ -51,17 +46,51 @@ public class MainForm extends JFrame {
 	private JButton btnKick = null;
 	private JButton btnBan = null;
 	private JButton btnMute = null;
-	public MainForm() {
+	
+	public MainForm() 
+	{
 		super();
 		initialize();
 		
 		CreateMenu();						//create application menu
+		InitGUI();							//initialize GUI
 		
 		//Test
 		this.cboChannel.addItem("Channel1");
 		this.cboChannel.addItem("Channel2");
 		
 	}
+	
+	private void InitGUI()
+	{
+		this.btnDisconnect.setEnabled(false);	//disable disconnect button
+		
+		this.cboChannel.setEnabled(false);		//disable channel drop down
+		this.txtChannel.setEnabled(false);		//disable channel textbox
+		this.btnJoin.setEnabled(false);			//disable join button
+		this.btnPart.setEnabled(false);			//disable part button
+		
+		
+		this.btnBan.setEnabled(false);		//disable ban button
+		this.btnKick.setEnabled(false);		//disable kick button
+		this.btnMute.setEnabled(false);		//disable mute button
+	}
+	
+	//Method where events trigger
+	public void actionPerformed(ActionEvent event) 
+	{	
+		if (event.getSource() == btnConnect)		//button is clicked
+		{
+			//Setup sockets
+			String hostIP = this.txtConnIP.getText();
+			int hostPort = Integer.parseInt(this.txtConnPort.getText());
+	        tcpThread = new TCPThread(hostIP, hostPort);
+	        tcpThread.start();	
+			
+			//Create and send connection command
+			CmdLib.CreateConnCommand(this.txtNick.getText(), "", this.txtName.getText(), "");
+		}
+	}	
 
 
 	private void initialize() {
@@ -85,19 +114,35 @@ public class MainForm extends JFrame {
 	{
 		JMenuBar menuBar = new JMenuBar();						//create menu bar
 
-		//Add Connection menu item
-		JMenu fileMenu = new JMenu("Connection");  	 		 	//create connection item
-		JMenuItem fileMenuItem1 = new JMenuItem("Connect");	    //create connect sub item
-		JMenuItem fileMenuItem2 = new JMenuItem("Disconnect");  //create disconnect sub item
+		//Add File menu item
+		JMenu fileMenu = new JMenu("File	");  	 		 	//create file item
+		JMenuItem fileMenuItem1 = new JMenuItem("Open");	    //create open sub item
+		JMenuItem fileMenuItem2 = new JMenuItem("Quit");  		//create quit sub item
 		fileMenu.add(fileMenuItem1);							//add menu items
 		fileMenu.add(fileMenuItem2);							//add menu items
 		menuBar.add(fileMenu);									//add file menu
+		
+		//Add Connection menu item
+		JMenu connMenu = new JMenu("Connection");  	 		 	//create connection item
+		JMenuItem connMenuItem1 = new JMenuItem("Connect");	    //create connect sub item
+		JMenuItem connMenuItem2 = new JMenuItem("Disconnect");  //create disconnect sub item
+		connMenu.add(connMenuItem1);							//add menu items
+		connMenu.add(connMenuItem2);							//add menu items
+		menuBar.add(connMenu);									//add file menu
 		
 		//Add Channels menu item
 		JMenu channelsMenu = new JMenu("Channels");
 		JMenuItem channelsMenuItem1 = new JMenuItem("List");    //list sub item
 		channelsMenu.add(channelsMenuItem1);
 		menuBar.add(channelsMenu);
+
+		//Add Help menu item
+		JMenu helpMenu = new JMenu("Help");
+		JMenuItem helpMenuItem1 = new JMenuItem("Help");    	//list sub item
+		JMenuItem helpMenuItem2 = new JMenuItem("About");    	//list sub item
+		helpMenu.add(helpMenuItem1);
+		helpMenu.add(helpMenuItem2);
+		menuBar.add(helpMenu);		
 		
 		
 		this.setJMenuBar(menuBar);								//add the menu bar to the frame
@@ -159,6 +204,7 @@ public class MainForm extends JFrame {
 			btnConnect = new JButton();
 			btnConnect.setBounds(new Rectangle(70, 145, 100, 20));
 			btnConnect.setText("Connect");
+			btnConnect.addActionListener(this);
 		}
 		return btnConnect;
 	}
@@ -198,7 +244,7 @@ public class MainForm extends JFrame {
 			pnlChannels.add(getCboChannel(), null);
 			pnlChannels.add(lblChan2, null);
 			pnlChannels.add(getTxtChannel(), null);
-			pnlChannels.add(getBtnChannel(), null);
+			pnlChannels.add(getBtnJoin(), null);
 			pnlChannels.add(getBtnPart(), null);
 		}
 		return pnlChannels;
@@ -213,12 +259,6 @@ public class MainForm extends JFrame {
 		return cboChannel;
 	}
 
-
-	/**
-	 * This method initializes txtChannel	
-	 * 	
-	 * @return javax.swing.JTextField	
-	 */
 	private JTextField getTxtChannel() {
 		if (txtChannel == null) {
 			txtChannel = new JTextField();
@@ -227,20 +267,20 @@ public class MainForm extends JFrame {
 		return txtChannel;
 	}
 
-	private JButton getBtnChannel() {
-		if (btnChannel == null) {
-			btnChannel = new JButton();
-			btnChannel.setBounds(new Rectangle(70, 145, 100, 20));
-			btnChannel.setText("Join");
+	private JButton getBtnJoin() {
+		if (btnJoin == null) {
+			btnJoin = new JButton();
+			btnJoin.setBounds(new Rectangle(70, 145, 100, 20));
+			btnJoin.setText("Join");
 		}
-		return btnChannel;
+		return btnJoin;
 	}
 
 	private JButton getBtnPart() {
 		if (btnPart == null) {
 			btnPart = new JButton();
 			btnPart.setBounds(new Rectangle(175, 145, 100, 20));
-			btnPart.setText("Part");
+			btnPart.setText("Leave");
 		}
 		return btnPart;
 	}
@@ -315,12 +355,6 @@ public class MainForm extends JFrame {
 		return btnKick;
 	}
 
-
-	/**
-	 * This method initializes btnBan	
-	 * 	
-	 * @return javax.swing.JButton	
-	 */
 	private JButton getBtnBan() {
 		if (btnBan == null) {
 			btnBan = new JButton();
@@ -340,5 +374,7 @@ public class MainForm extends JFrame {
 		}
 		return btnMute;
 	}
+
+
 
 }  //  @jve:decl-index=0:visual-constraint="10,10"
