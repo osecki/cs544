@@ -4,11 +4,95 @@ import com.IRC.*;
 
 public class CmdLib 
 {
-	public static String CreateCommand()
+	public enum CommandType
 	{
-
+		Conn,
+		Disconn,
+		Join,
+		Part,
+		Kick,
+		Ban,
+		Mute,
+		NewDesc,
+		GetChans,
+		GetUsers
+	}
+	
+	//Method to create a conn XML command
+	public static String CreateConnCommand(String nick, String IP, String name)
+	{
+		String xmlCmd = "";
 		
-
+		try
+		{
+			//create document
+			com.IRC.IRC2 doc = com.IRC.IRC2.createDocument();	
+			
+			//add root node
+			com.IRC.VoiceIRCType root = doc.VoiceIRC.append();
+			
+			//add command node
+			root.CommandName.append().setValue(CommandType.Conn.toString());
+			
+			//Add users node
+		}
+		catch (Exception e) 
+		{
+		}	
+		
+		return xmlCmd;
+	}
+	
+	//Method to create a disconn XML command
+	public static String CreateDisconnCommand(String nick)
+	{
+		return "";
+	}
+	
+	public static String CreateJoinCommand(String channelName, String nick)
+	{
+		return "";
+	}
+	
+	public static String CreatePartCommand(String channelName, String nick)
+	{
+		return "";
+	}
+	
+	public static String CreateKickCommand(String channelName, String nick)
+	{
+		return "";
+	}
+	
+	public static String CreateBanCommand(String channelName, String nick)
+	{
+		return "";
+	}
+	
+	public static String CreateMuteCommand(String channelName, String nick)
+	{
+		return "";
+	}
+	
+	public static String CreateNewDescCommand(String channelName, String desc)
+	{
+		return "";
+	}
+	
+	public static String CreateGetChansCommand()
+	{
+		return "";
+	}
+	
+	public static String CreateGetUsersCommand(String channelName)
+	{
+		return "";
+	}
+	
+	
+	/*	EXAMPLE CODE I'LL LEAVE FOR NOW
+	public static String CreateCommand()
+	{	
 		try
 		{
 			
@@ -92,4 +176,5 @@ public class CmdLib
 		
 		return "";
 	}
+	*/
 }
