@@ -4,6 +4,8 @@ import com.IRC.*;
 
 public class CmdLib 
 {
+	public static int transID;
+	
 	public enum CommandType
 	{
 		Conn,
@@ -18,8 +20,13 @@ public class CmdLib
 		GetUsers
 	}
 	
+	public static int GetTransID()
+	{
+		return transID++;
+	}
+	
 	//Method to create a conn XML command
-	public static String CreateConnCommand(String nick, String IP, String name)
+	public static String CreateConnCommand(String nick, String IP, String name, String pass)
 	{
 		String xmlCmd = "";
 		
@@ -29,12 +36,34 @@ public class CmdLib
 			com.IRC.IRC2 doc = com.IRC.IRC2.createDocument();	
 			
 			//add root node
-			com.IRC.VoiceIRCType root = doc.VoiceIRC.append();
+			com.IRC.VIRCType root = doc.VIRC.append();
+			
+			//add transaction ID
+			root.ID.setValue(GetTransID());
 			
 			//add command node
-			root.CommandName.append().setValue(CommandType.Conn.toString());
+			root.Cmd.append().setValue(CommandType.Conn.toString());
 			
 			//Add users node
+			UsersType users = root.Users.append();
+			
+			//Add user node
+			UserClass user = users.User.append();
+			
+			//Add nick
+			user.Nick.append().setValue(nick);
+
+			//Add IP
+			user.IP.append().setValue(IP);
+			
+			//Add name
+			user.Name.append().setValue(name);
+			
+			//Add password
+			user.Pass.append().setValue(pass);
+			
+			//save XML to String
+			xmlCmd = doc.saveToString(false);
 		}
 		catch (Exception e) 
 		{
