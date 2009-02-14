@@ -25,8 +25,9 @@ public class CmdLib
 		return transID++;
 	}
 	
+	
 	//Method to create a conn XML command
-	public static String CreateConnCommand(String nick, String IP, String name, String pass)
+	public static void CreateConnCommand(String nick, String IP, String name, String pass)
 	{
 		String xmlCmd = "";
 		
@@ -66,58 +67,50 @@ public class CmdLib
 			//save XML to String
 			xmlCmd = doc.saveToString(false);
 			
+			//Write message to server
+			TCPThread.write(xmlCmd);
+			
 		}
 		catch (Exception e) 
 		{
 		}	
-		
-		return xmlCmd;
 	}
 	
 	//Method to create a disconn XML command
-	public static String CreateDisconnCommand(String nick)
+	public static void CreateDisconnCommand(String nick)
 	{
-		return "";
 	}
 	
-	public static String CreateJoinCommand(String channelName, String nick)
+	public static void CreateJoinCommand(String channelName, String nick)
 	{
-		return "";
 	}
 	
-	public static String CreatePartCommand(String channelName, String nick)
+	public static void CreatePartCommand(String channelName, String nick)
 	{
-		return "";
 	}
 	
-	public static String CreateKickCommand(String channelName, String nick)
+	public static void CreateKickCommand(String channelName, String nick)
 	{
-		return "";
 	}
 	
-	public static String CreateBanCommand(String channelName, String nick)
+	public static void CreateBanCommand(String channelName, String nick)
 	{
-		return "";
 	}
 	
-	public static String CreateMuteCommand(String channelName, String nick)
+	public static void CreateMuteCommand(String channelName, String nick)
 	{
-		return "";
 	}
 	
-	public static String CreateNewDescCommand(String channelName, String desc)
+	public static void CreateNewDescCommand(String channelName, String desc)
 	{
-		return "";
 	}
 	
-	public static String CreateGetChansCommand()
+	public static void CreateGetChansCommand()
 	{
-		return "";
 	}
 	
-	public static String CreateGetUsersCommand(String channelName)
+	public static void CreateGetUsersCommand(String channelName)
 	{
-		return "";
 	}
 	
 	

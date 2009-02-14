@@ -7,7 +7,7 @@ public class TCPThread extends Thread
 {
 	private String hostAddr = null;		//server address
 	private int hostPort = 0;			//server port num
-	private Socket sock = null;			//socket for TCP
+	private static Socket sock = null;	//socket for TCP
 	
 	
 	//Constructor
@@ -48,9 +48,16 @@ public class TCPThread extends Thread
 		}
 	}
 	
-	public void write()
+	public static void write(String xmlMsg)
 	{
 		//write data out the socket to the server
-		System.out.println("************** WRITE");
+		try 
+		{
+			sock.getOutputStream().write(xmlMsg.getBytes(), 0, xmlMsg.getBytes().length);
+		} 
+		catch (IOException e) 
+		{
+			e.printStackTrace();
+		}
 	}
 }
