@@ -23,9 +23,9 @@ public class TCPThread extends Thread
 			//create socket and connect
 			sock = new Socket(hostAddr, hostPort);
 		} 
-		catch (Exception ex)
+		catch (Exception e)
 		{
-			System.out.println(ex.getMessage());
+			System.out.println("Error: TCPThread::TCPThread - " + e.getMessage());
 		}
 	}
 
@@ -41,14 +41,17 @@ public class TCPThread extends Thread
 			{
 				int readLen = sock.getInputStream().read(buffer, 0, 1024);	//read socket
 				String incomingXML = new String(buffer);					//get string
+				
+				System.out.println("RECEIVED: " + incomingXML);
+				
 				CmdLib.ParseIncomingMessage(incomingXML);					//parse xml
 				sleep(1000);												//sleep
 			}
 			
 		}
-		catch(Exception ex)
+		catch(Exception e)
 		{
-			System.out.println(ex.getMessage());
+			System.out.println("Error: TCPThread::run - " + e.getMessage());
 		}
 	}
 	
@@ -56,13 +59,15 @@ public class TCPThread extends Thread
 	{
 		//write data out the socket to the server
 		try 
-		{
+		{	
 			//write out the socket
 			sock.getOutputStream().write(xmlMsg.getBytes(), 0, xmlMsg.getBytes().length);
+			
+			System.out.println("SENDING: " + xmlMsg);
 		} 
 		catch (IOException e) 
 		{
-			e.printStackTrace();
+			System.out.println("Error: TCPThread::write - " + e.getMessage());
 		}
 	}
 }
