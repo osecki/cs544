@@ -91,6 +91,11 @@ public class MainForm extends JFrame implements ActionListener
 			CmdLib.CreateConnCommand(this.txtNick.getText(), "", this.txtName.getText(), "");
 		}
 	}	
+	
+	public static void UpdateGUI()
+	{
+		
+	}
 
 
 	private void initialize() {

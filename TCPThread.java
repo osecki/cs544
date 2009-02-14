@@ -32,13 +32,17 @@ public class TCPThread extends Thread
 	//Entry point for the execution of the thread
 	public void run()
 	{
+		byte[] buffer = new byte[1024];
+		
 		try
 		{
 			//loop forever to read from socket
 			while(true)
 			{
-				System.out.println("READ");
-				sleep(1000);
+				int readLen = sock.getInputStream().read(buffer, 0, 1024);	//read socket
+				String incomingXML = new String(buffer);					//get string
+				CmdLib.ParseIncomingMessage(incomingXML);					//parse xml
+				sleep(1000);												//sleep
 			}
 			
 		}
@@ -53,6 +57,7 @@ public class TCPThread extends Thread
 		//write data out the socket to the server
 		try 
 		{
+			//write out the socket
 			sock.getOutputStream().write(xmlMsg.getBytes(), 0, xmlMsg.getBytes().length);
 		} 
 		catch (IOException e) 
