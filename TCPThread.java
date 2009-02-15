@@ -21,7 +21,9 @@ public class TCPThread extends Thread
 		try 
 		{
 			//create socket and connect
-			sock = new Socket(hostAddr, hostPort);
+			sock = new Socket(hostAddr, hostPort, InetAddress.getLocalHost(), 1243);
+			int p = sock.getLocalPort();
+			p = 0;
 		} 
 		catch (Exception e)
 		{
