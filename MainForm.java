@@ -17,6 +17,7 @@ import java.awt.event.*;
 public class MainForm extends JFrame implements ActionListener
 {
 	private TCPThread tcpThread;
+	private UDPThread udpThread;
 
 	private static final long serialVersionUID = 1L;
 	private JPanel jContentPane = null;
@@ -81,11 +82,16 @@ public class MainForm extends JFrame implements ActionListener
 	{	
 		if (event.getSource() == btnConnect)		//button is clicked
 		{
-			//Setup sockets
+			//Setup TCP thread and sockets
 			String hostIP = this.txtConnIP.getText();
 			int hostPort = Integer.parseInt(this.txtConnPort.getText());
 	        tcpThread = new TCPThread(hostIP, hostPort);
 	        tcpThread.start();	
+	        
+	        //Setup UDP thread and sockets
+	        udpThread = new UDPThread(hostIP, 5555);	//hardcode UDP port for now
+	        udpThread.start();		        
+	        
 			
 			//Create and send connection command
 			CmdLib.CreateConnCommand(this.txtNick.getText(), "", this.txtName.getText(), "");
