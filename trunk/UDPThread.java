@@ -10,6 +10,9 @@ public class UDPThread extends Thread
 	private static DatagramSocket sock = null;	//socket for UDP
 	
 	
+	//create a timer every x milliseconds
+	//need a buffer.  
+	
 	//Constructor
 	public UDPThread(String host, int port)
 	{
@@ -23,7 +26,7 @@ public class UDPThread extends Thread
 			//create socket and connect
 			sock = new DatagramSocket(1244);					//hardcode for now
 			InetAddress address = InetAddress.getByName(hostAddr);
-			sock.connect(address, hostPort);
+			sock.connect(address, 1501);
 		} 
 		catch (Exception e)
 		{
