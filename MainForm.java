@@ -2,6 +2,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.JPanel;
 import javax.swing.JFrame;
 import java.awt.Rectangle;
+import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JMenuBar;
@@ -13,6 +14,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JComboBox;
 import javax.swing.JTextArea;
 import java.awt.event.*;
+import java.io.File;
 
 public class MainForm extends JFrame implements ActionListener
 {
@@ -53,13 +55,21 @@ public class MainForm extends JFrame implements ActionListener
 		super();
 		initialize();
 		
+		// Add a window listener for close button
+		addWindowListener(new WindowAdapter()
+		{
+			public void windowClosing(WindowEvent e) 
+			{
+				System.exit(0);
+			}
+		});
+		
 		CreateMenu();						//create application menu
 		InitGUI();							//initialize GUI
 		
 		//Test
 		this.cboChannel.addItem("Channel1");
 		this.cboChannel.addItem("Channel2");
-		
 	}
 	
 	private void InitGUI()
@@ -77,23 +87,22 @@ public class MainForm extends JFrame implements ActionListener
 		this.btnMute.setEnabled(false);		//disable mute button
 	}
 	
-	//Method where events trigger
+	// Method where events trigger
 	public void actionPerformed(ActionEvent event) 
 	{	
-		if (event.getSource() == btnConnect)		//button is clicked
+		if (event.getSource() == btnConnect) // Button is clicked
 		{
-			//Setup TCP thread and sockets
+			// Setup TCP thread and sockets
 			String hostIP = this.txtConnIP.getText();
 			int hostPort = Integer.parseInt(this.txtConnPort.getText());
 	        tcpThread = new TCPThread(hostIP, hostPort);
 	        tcpThread.start();	
 	        
-	        //Setup UDP thread and sockets
-	        udpThread = new UDPThread(hostIP, 5555);	//hardcode UDP port for now
+	        // Setup UDP thread and sockets
+	        udpThread = new UDPThread(hostIP, 5555); // Hardcode UDP port for now
 	        udpThread.start();		        
 	        
-			
-			//Create and send connection command
+			// Create and send connection command
 			CmdLib.CreateConnCommand(this.txtNick.getText(), "", this.txtName.getText(), "");
 		}
 	}	
@@ -103,11 +112,15 @@ public class MainForm extends JFrame implements ActionListener
 		
 	}
 
-
 	private void initialize() {
 		this.setSize(619, 486);
 		this.setContentPane(getJContentPane());
 		this.setTitle("Voice IRC");
+	}
+	
+	private JFrame getJFrame ()
+	{
+		return this;
 	}
 
 	private JPanel getJContentPane() {
@@ -143,20 +156,71 @@ public class MainForm extends JFrame implements ActionListener
 		
 		//Add Channels menu item
 		JMenu channelsMenu = new JMenu("Channels");
-		JMenuItem channelsMenuItem1 = new JMenuItem("List");    //list sub item
+		JMenuItem channelsMenuItem1 = new JMenuItem("Join");    //list sub item
+		JMenuItem channelsMenuItem2 = new JMenuItem("Part");    //list sub item
 		channelsMenu.add(channelsMenuItem1);
 		menuBar.add(channelsMenu);
 
 		//Add Help menu item
 		JMenu helpMenu = new JMenu("Help");
-		JMenuItem helpMenuItem1 = new JMenuItem("Help");    	//list sub item
+		JMenuItem helpMenuItem1 = new JMenuItem("Tutorial");  	//list sub item
 		JMenuItem helpMenuItem2 = new JMenuItem("About");    	//list sub item
 		helpMenu.add(helpMenuItem1);
 		helpMenu.add(helpMenuItem2);
 		menuBar.add(helpMenu);		
 		
-		
 		this.setJMenuBar(menuBar);								//add the menu bar to the frame
+		
+		// ActionListener for loadItem
+		fileMenuItem1.addActionListener(new ActionListener () 
+        {
+        	public void actionPerformed(ActionEvent arg0) 
+			{
+        		final JFileChooser fc = new JFileChooser();
+        		int returnVal = fc.showOpenDialog(getJFrame());
+
+                if (returnVal == JFileChooser.APPROVE_OPTION)
+                {
+                    File file = fc.getSelectedFile();
+                    
+                    // IMPLEMENT WHAT TO DO WITH FILE HERE
+                    System.out.println(file.getAbsolutePath());
+                } 
+			}
+        });
+		
+		// ActionListener for exitItem
+		fileMenuItem2.addActionListener(new ActionListener () 
+        {
+        	public void actionPerformed(ActionEvent arg0) 
+			{
+        		System.exit(0);
+			}
+        });
+		
+		// Create the About and help panel
+		final JFrame aboutPanel = new AboutPanel ();
+		final JFrame tutorialPanel = new TutorialPanel ();
+		
+		// ActionListener for tutorialItem
+		helpMenuItem1.addActionListener(new ActionListener () 
+        {
+        	public void actionPerformed(ActionEvent arg0) 
+			{
+        		tutorialPanel.pack ();
+        		tutorialPanel.setVisible (true);
+			}
+        });
+        
+        // ActionListener for aboutItem
+		helpMenuItem2.addActionListener(new ActionListener () 
+        {
+        	public void actionPerformed(ActionEvent arg0) 
+			{
+        		aboutPanel.pack ();
+        		aboutPanel.setVisible (true);
+			}
+        });
 	}
 
 
@@ -229,7 +293,6 @@ public class MainForm extends JFrame implements ActionListener
 		return txtName;
 	}
 
-
 	private JTextField getTxtNick() {
 		if (txtNick == null) {
 			txtNick = new JTextField();
@@ -260,7 +323,6 @@ public class MainForm extends JFrame implements ActionListener
 		}
 		return pnlChannels;
 	}
-
 
 	private JComboBox getCboChannel() {
 		if (cboChannel == null) {
@@ -320,14 +382,12 @@ public class MainForm extends JFrame implements ActionListener
 		return pnlChannelInfo;
 	}
 
-
 	private JList getJList() {
 		if (jList == null) {
 			jList = new JList();
 		}
 		return jList;
 	}
-
 
 	private JScrollPane getPnlUsers() {
 		if (pnlUsers == null) {
@@ -356,7 +416,6 @@ public class MainForm extends JFrame implements ActionListener
 		return txtDescription;
 	}
 
-
 	private JButton getBtnKick() {
 		if (btnKick == null) {
 			btnKick = new JButton();
@@ -375,8 +434,6 @@ public class MainForm extends JFrame implements ActionListener
 		return btnBan;
 	}
 
-
-
 	private JButton getBtnMute() {
 		if (btnMute == null) {
 			btnMute = new JButton();
@@ -385,7 +442,4 @@ public class MainForm extends JFrame implements ActionListener
 		}
 		return btnMute;
 	}
-
-
-
 }  //  @jve:decl-index=0:visual-constraint="10,10"
