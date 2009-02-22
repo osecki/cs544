@@ -1,18 +1,15 @@
 import java.io.IOException;
 import java.net.*;
 import java.awt.event.*;
-
 import javax.swing.*;
 
-//Class to represent the UDP thread for processing
-//control messages
+// Class to represent the UDP thread for processing control messages
 public class UDPThread extends Thread implements ActionListener
 {
 	private String hostAddr = null;				//server address
 	private int hostPort = 0;					//server port num
 	private static DatagramSocket sock = null;	//socket for UDP
 	private Timer timer;			//timer to read UDP socket
-	
 	
 	//create a timer every x milliseconds
 	//need a buffer.  

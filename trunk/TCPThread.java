@@ -1,14 +1,12 @@
 import java.io.IOException;
 import java.net.*;
 
-//Class to represent the TCP thread for processing
-//control messages
+// Class to represent the TCP thread for processing control messages
 public class TCPThread extends Thread
 {
 	private String hostAddr = null;		//server address
 	private int hostPort = 0;			//server port num
 	private static Socket sock = null;	//socket for TCP
-	
 	
 	//Constructor
 	public TCPThread(String host, int port)
