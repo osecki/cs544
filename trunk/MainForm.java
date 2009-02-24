@@ -1,3 +1,5 @@
+import javax.media.Format;
+import javax.media.MediaLocator;
 import javax.swing.border.TitledBorder;
 import javax.swing.JPanel;
 import javax.swing.JFrame;
@@ -18,8 +20,9 @@ import java.io.File;
 
 public class MainForm extends JFrame implements ActionListener
 {
+	private UDPReceiver udpReceiver;
+	private UDPTransmitter udpTransmitter;
 	private TCPThread tcpThread;
-	private UDPThread udpThread;
 
 	private static final long serialVersionUID = 1L;
 	private JPanel jContentPane = null;
@@ -27,7 +30,7 @@ public class MainForm extends JFrame implements ActionListener
 	private JLabel lblConnIP = null;
 	private JLabel lblConnPort = null;
 	private JTextField txtConnIP = null;
-	private JTextField txtConnPort = null;
+	private JTextField txtConnPortTCP = null;
 	private JButton btnConnect = null;
 	private JLabel lblName = null;
 	private JLabel lblNick = null;
@@ -49,6 +52,8 @@ public class MainForm extends JFrame implements ActionListener
 	private JButton btnKick = null;
 	private JButton btnBan = null;
 	private JButton btnMute = null;
+
+	private JTextField txtConnPortUDP = null;
 	
 	public MainForm() 
 	{
@@ -94,15 +99,27 @@ public class MainForm extends JFrame implements ActionListener
 		{
 			// Setup TCP thread and sockets
 			String hostIP = this.txtConnIP.getText();
-			int hostPort = Integer.parseInt(this.txtConnPort.getText());
-	        tcpThread = new TCPThread(hostIP, hostPort);
+			int hostTCPPort = Integer.parseInt(this.txtConnPortTCP.getText());
+	        tcpThread = new TCPThread(hostIP, hostTCPPort);
 	        tcpThread.start();	
 	        
-	        // Setup UDP thread and sockets
-	        udpThread = new UDPThread(hostIP, 5555); // Hardcode UDP port for now
-	        udpThread.start();		        
+//**************************************************************************************	        
+	        // Setup UDP receiver thread
+	        String[] argv = new String[1];
+	        argv[0] = this.txtConnIP.getText() + "/" + this.txtConnPortUDP.getText();
+	        udpReceiver = new UDPReceiver(argv);
+	        udpReceiver.start();
+
 	        
-			// Create and send connection command
+//**************************************************************************************	        
+	        // Setup UDP transmitter thread
+	    	udpTransmitter = new UDPTransmitter(new MediaLocator("javasound://44100"),
+	    					     this.txtConnIP.getText(), this.txtConnPortUDP.getText(), null);    
+	        udpTransmitter.start();
+	        
+//**************************************************************************************	
+	        
+	        // Create and send connection command
 			CmdLib.CreateConnCommand(this.txtNick.getText(), "", this.txtName.getText(), "");
 		}
 	}	
@@ -234,7 +251,7 @@ public class MainForm extends JFrame implements ActionListener
 			lblName.setText("Name:");
 			lblConnPort = new JLabel();
 			lblConnPort.setBounds(new Rectangle(10, 55, 82, 16));
-			lblConnPort.setText("Server Port:");
+			lblConnPort.setText("Server Ports:");
 			lblConnIP = new JLabel();
 			lblConnIP.setBounds(new Rectangle(10, 28, 82, 19));
 			lblConnIP.setText("Server IP:");
@@ -245,13 +262,14 @@ public class MainForm extends JFrame implements ActionListener
 			pnlConnection.add(lblConnIP, null);
 			pnlConnection.add(lblConnPort, null);
 			pnlConnection.add(getTxtConnIP(), null);
-			pnlConnection.add(getTxtConnPort(), null);
+			pnlConnection.add(getTxtConnPortTCP(), null);
 			pnlConnection.add(getBtnConnect(), null);
 			pnlConnection.add(lblName, null);
 			pnlConnection.add(lblNick, null);
 			pnlConnection.add(getTxtName(), null);
 			pnlConnection.add(getTxtNick(), null);
 			pnlConnection.add(getBtnDisconnect(), null);
+			pnlConnection.add(getTxtConnPortUDP(), null);
 		}
 		return pnlConnection;
 	}
@@ -264,13 +282,13 @@ public class MainForm extends JFrame implements ActionListener
 		return txtConnIP;
 	}
 
-	private JTextField getTxtConnPort() {
-		if (txtConnPort == null) {
-			txtConnPort = new JTextField();
-			txtConnPort.setBounds(new Rectangle(95, 55, 175, 20));
-			txtConnPort.setText("");
+	private JTextField getTxtConnPortTCP() {
+		if (txtConnPortTCP == null) {
+			txtConnPortTCP = new JTextField();
+			txtConnPortTCP.setBounds(new Rectangle(95, 55, 77, 20));
+			txtConnPortTCP.setText("");
 		}
-		return txtConnPort;
+		return txtConnPortTCP;
 	}
 
 
@@ -441,5 +459,19 @@ public class MainForm extends JFrame implements ActionListener
 			btnMute.setText("Mute");
 		}
 		return btnMute;
+	}
+
+	/**
+	 * This method initializes txtConnPortUDP	
+	 * 	
+	 * @return javax.swing.JTextField	
+	 */
+	private JTextField getTxtConnPortUDP() {
+		if (txtConnPortUDP == null) {
+			txtConnPortUDP = new JTextField();
+			txtConnPortUDP.setBounds(new Rectangle(190, 55, 77, 20));
+			txtConnPortUDP.setText("");
+		}
+		return txtConnPortUDP;
 	}
 }  //  @jve:decl-index=0:visual-constraint="10,10"
