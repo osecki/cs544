@@ -7,6 +7,7 @@ public class TCPThread extends Thread
 	private String hostAddr = null;		//server address
 	private int hostPort = 0;			//server port num
 	private static Socket sock = null;	//socket for TCP
+
 	
 	//Constructor
 	public TCPThread(String host, int port)
@@ -19,9 +20,9 @@ public class TCPThread extends Thread
 		try 
 		{
 			//create socket and connect
-			sock = new Socket(hostAddr, hostPort, InetAddress.getLocalHost(), 1243);
-			int p = sock.getLocalPort();
-			p = 0;
+			int localPort = (int) Math.random();
+			sock = new Socket(hostAddr, hostPort, InetAddress.getLocalHost(), localPort);
+			localPort = localPort + 1;
 		} 
 		catch (Exception e)
 		{
@@ -41,7 +42,7 @@ public class TCPThread extends Thread
 			{
 				int readLen = sock.getInputStream().read(buffer, 0, 1024);	//read socket
 				String incomingXML = new String(buffer);					//get string
-				
+				incomingXML = incomingXML.substring(0, readLen);
 				System.out.println("RECEIVED: " + incomingXML);
 				
 				CmdLib.ParseIncomingMessage(incomingXML);					//parse xml
@@ -69,5 +70,18 @@ public class TCPThread extends Thread
 		{
 			System.out.println("Error: TCPThread::write - " + e.getMessage());
 		}
+	}
+	
+	public void Close()
+	{
+		try 
+		{
+			this.sock.close();
+			this.stop();
+		} 
+		catch (IOException e) 
+		{
+		}
+		
 	}
 }

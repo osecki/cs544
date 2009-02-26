@@ -102,25 +102,36 @@ public class MainForm extends JFrame implements ActionListener
 			int hostTCPPort = Integer.parseInt(this.txtConnPortTCP.getText());
 	        tcpThread = new TCPThread(hostIP, hostTCPPort);
 	        tcpThread.start();	
-	        
-//**************************************************************************************	        
+	        	        
 	        // Setup UDP receiver thread
 	        String[] argv = new String[1];
 	        argv[0] = this.txtConnIP.getText() + "/" + this.txtConnPortUDP.getText();
 	        udpReceiver = new UDPReceiver(argv);
 	        udpReceiver.start();
-
-	        
-//**************************************************************************************	        
+       
 	        // Setup UDP transmitter thread
 	    	udpTransmitter = new UDPTransmitter(new MediaLocator("javasound://44100"),
 	    					     this.txtConnIP.getText(), this.txtConnPortUDP.getText(), null);    
 	        udpTransmitter.start();
 	        
-//**************************************************************************************	
-	        
+       
 	        // Create and send connection command
 			CmdLib.CreateConnCommand(this.txtNick.getText(), "", this.txtName.getText(), "");
+			
+			//Change button status
+			btnConnect.setEnabled(false);
+			btnDisconnect.setEnabled(true);
+		}
+		else if (event.getSource() == btnDisconnect)
+		{
+			//Close connections
+			this.udpReceiver.close();
+			this.udpTransmitter.stopTx();
+			this.tcpThread.Close();
+			
+			//Change button status
+			btnConnect.setEnabled(true);
+			btnDisconnect.setEnabled(false);			
 		}
 	}	
 	
@@ -379,6 +390,7 @@ public class MainForm extends JFrame implements ActionListener
 	private JButton getBtnDisconnect() {
 		if (btnDisconnect == null) {
 			btnDisconnect = new JButton();
+			btnDisconnect.addActionListener(this);
 			btnDisconnect.setBounds(new Rectangle(175, 145, 100, 20));
 			btnDisconnect.setText("Disconnect");
 		}
