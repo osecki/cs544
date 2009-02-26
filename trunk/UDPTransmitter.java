@@ -431,7 +431,7 @@ public class UDPTransmitter extends Thread{
 		    System.err.println("Error : " + result);
 		    System.exit(0);
 		}
-		
+	/*	
 		System.err.println("Start transmission for 60 seconds...");
 
 		// Transmit for 60 seconds and then close the processor
@@ -441,14 +441,15 @@ public class UDPTransmitter extends Thread{
 		// The right thing to do would be to have a GUI with a
 		// "Stop" button that would call stop on AVTransmit2
 		try {
-		    Thread.currentThread().sleep(60000);
+		    Thread.currentThread().sleep(300000);
 		} catch (InterruptedException ie) {
 		}
 
 		// Stop the transmission
 		this.stopTx();
 		
-		System.err.println("...transmission ended.");		
+		System.err.println("...transmission ended.");	
+	*/	
 	}
 }
 
