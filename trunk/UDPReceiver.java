@@ -129,7 +129,7 @@ public class UDPReceiver extends Thread implements ReceiveStreamListener, Sessio
 	// Wait for data to arrive before moving on.
 
 	long then = System.currentTimeMillis();
-	long waitingPeriod = 30000;  // wait for a maximum of 30 secs.
+	long waitingPeriod = 300000;  // wait for a maximum of 30 secs.
 
 	try{
 	    synchronized (dataSync) {

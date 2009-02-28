@@ -20,9 +20,10 @@ public class TCPThread extends Thread
 		try 
 		{
 			//create socket and connect
-			int localPort = (int) Math.random();
+			java.util.Random random = new java.util.Random();
+			int localPort = random.nextInt(8500)+1000;
+
 			sock = new Socket(hostAddr, hostPort, InetAddress.getLocalHost(), localPort);
-			localPort = localPort + 1;
 		} 
 		catch (Exception e)
 		{
