@@ -54,6 +54,8 @@ public class MainForm extends JFrame implements ActionListener
 	private JButton btnMute = null;
 
 	private JTextField txtConnPortUDP = null;
+	private JLabel lblPass = null;
+	private JTextField txtPass = null;
 	
 	public MainForm() 
 	{
@@ -94,10 +96,10 @@ public class MainForm extends JFrame implements ActionListener
 	
 	// Method where events trigger
 	public void actionPerformed(ActionEvent event) 
-	{	
+	{			
 		if (event.getSource() == btnConnect) // Button is clicked
 		{
-			// Setup TCP thread and sockets
+			// Setup TCP thread and sockets due to the Connect command
 			String hostIP = this.txtConnIP.getText();
 			int hostTCPPort = Integer.parseInt(this.txtConnPortTCP.getText());
 	        tcpThread = new TCPThread(hostIP, hostTCPPort);
@@ -116,11 +118,17 @@ public class MainForm extends JFrame implements ActionListener
 	        
        
 	        // Create and send connection command
-			CmdLib.CreateConnCommand(this.txtNick.getText(), "", this.txtName.getText(), "");
+			CmdLib.CreateConnCommand(this.txtNick.getText(), "", this.txtName.getText(), this.txtPass.getText());
+			
+			// Create and send GetChans command
+			CmdLib.CreateGetChansCommand();
 			
 			//Change button status
 			btnConnect.setEnabled(false);
 			btnDisconnect.setEnabled(true);
+			btnJoin.setEnabled(true);
+			cboChannel.setEnabled(true);
+			txtChannel.setEnabled(true);
 		}
 		else if (event.getSource() == btnDisconnect)
 		{
@@ -131,8 +139,57 @@ public class MainForm extends JFrame implements ActionListener
 			
 			//Change button status
 			btnConnect.setEnabled(true);
-			btnDisconnect.setEnabled(false);			
+			btnDisconnect.setEnabled(false);	
+			btnJoin.setEnabled(false);
+			cboChannel.setEnabled(false);
+			txtChannel.setEnabled(false);
 		}
+		else if (event.getSource() == btnJoin)
+		{
+			//if there is text in the text box, grab it
+			String channelName = this.txtChannel.getText();
+			String nick = this.txtNick.getText();
+			
+			//Create join command
+			CmdLib.CreateJoinCommand(channelName, nick);
+			
+			//Create Get users command
+			CmdLib.CreateGetUsersCommand(channelName);
+			
+			this.btnJoin.setEnabled(false);
+			this.btnPart.setEnabled(true);
+		}
+		else if (event.getSource() == btnPart)
+		{
+			//if there is text in the text box, grab it
+			String channelName = this.txtChannel.getText();
+			String nick = this.txtNick.getText();			
+			
+			//Create part command
+			CmdLib.CreatePartCommand(channelName, nick);
+			
+			this.btnJoin.setEnabled(true);
+			this.btnPart.setEnabled(false);
+		}
+		else
+		{
+			//this is a menu item
+			JMenuItem menuItem = (JMenuItem)event.getSource();
+
+			if (menuItem.getText() == "Connect")
+				CmdLib.CreateConnCommand("billNick", "127.0.0.1", "bill", "abcd");
+			else if (menuItem.getText() == "Disconnect")
+				CmdLib.CreateDisconnCommand("billNick");
+			else if (menuItem.getText() == "GetChans")
+				CmdLib.CreateGetChansCommand();
+			else if (menuItem.getText() == "GetUsers")
+				CmdLib.CreateGetUsersCommand("java");
+			else if (menuItem.getText() == "Join")
+				CmdLib.CreateJoinCommand("java", "billNick");
+			else if (menuItem.getText() == "Part")
+				CmdLib.CreatePartCommand("java", "billNick");
+		}
+
 	}	
 	
 	public static void UpdateGUI()
@@ -195,7 +252,33 @@ public class MainForm extends JFrame implements ActionListener
 		JMenuItem helpMenuItem2 = new JMenuItem("About");    	//list sub item
 		helpMenu.add(helpMenuItem1);
 		helpMenu.add(helpMenuItem2);
-		menuBar.add(helpMenu);		
+		menuBar.add(helpMenu);	
+		
+		//Add Unit Test menu item
+		JMenu testMenu = new JMenu("Unit Test");
+		JMenuItem testMenuItem1 = new JMenuItem("Connect");  	//list sub item		
+		JMenuItem testMenuItem2 = new JMenuItem("Disconnect"); 	//list sub item
+		JMenuItem testMenuItem3 = new JMenuItem("GetChans"); 	//list sub item
+		JMenuItem testMenuItem4 = new JMenuItem("GetUsers"); 	//list sub item
+		JMenuItem testMenuItem5 = new JMenuItem("Join");	 	//list sub item
+		JMenuItem testMenuItem6 = new JMenuItem("Part");	 	//list sub item
+		testMenu.add(testMenuItem1);
+		testMenu.add(testMenuItem2);
+		testMenu.add(testMenuItem3);
+		testMenu.add(testMenuItem4);
+		testMenu.add(testMenuItem5);
+		testMenu.add(testMenuItem6);
+		menuBar.add(testMenu);
+		
+		//Add action events to test menu items
+		testMenuItem1.addActionListener(this);
+		testMenuItem2.addActionListener(this);
+		testMenuItem3.addActionListener(this);
+		testMenuItem4.addActionListener(this);
+		testMenuItem5.addActionListener(this);
+		testMenuItem6.addActionListener(this);
+		
+		
 		
 		this.setJMenuBar(menuBar);								//add the menu bar to the frame
 		
@@ -254,6 +337,9 @@ public class MainForm extends JFrame implements ActionListener
 
 	private JPanel getPnlConnection() {
 		if (pnlConnection == null) {
+			lblPass = new JLabel();
+			lblPass.setBounds(new Rectangle(10, 140, 69, 20));
+			lblPass.setText("Password:");
 			lblNick = new JLabel();
 			lblNick.setBounds(new Rectangle(10, 119, 68, 16));
 			lblNick.setText("Nickname:");
@@ -269,7 +355,7 @@ public class MainForm extends JFrame implements ActionListener
 			pnlConnection = new JPanel();
 			pnlConnection.setBorder(new TitledBorder("Connection"));
 			pnlConnection.setLayout(null);
-			pnlConnection.setBounds(new Rectangle(15, 15, 285, 175));
+			pnlConnection.setBounds(new Rectangle(15, 15, 285, 206));
 			pnlConnection.add(lblConnIP, null);
 			pnlConnection.add(lblConnPort, null);
 			pnlConnection.add(getTxtConnIP(), null);
@@ -281,6 +367,8 @@ public class MainForm extends JFrame implements ActionListener
 			pnlConnection.add(getTxtNick(), null);
 			pnlConnection.add(getBtnDisconnect(), null);
 			pnlConnection.add(getTxtConnPortUDP(), null);
+			pnlConnection.add(lblPass, null);
+			pnlConnection.add(getTxtPass(), null);
 		}
 		return pnlConnection;
 	}
@@ -306,7 +394,7 @@ public class MainForm extends JFrame implements ActionListener
 	private JButton getBtnConnect() {
 		if (btnConnect == null) {
 			btnConnect = new JButton();
-			btnConnect.setBounds(new Rectangle(70, 145, 100, 20));
+			btnConnect.setBounds(new Rectangle(70, 165, 100, 20));
 			btnConnect.setText("Connect");
 			btnConnect.addActionListener(this);
 		}
@@ -342,7 +430,7 @@ public class MainForm extends JFrame implements ActionListener
 			pnlChannels = new JPanel();
 			pnlChannels.setBorder(new TitledBorder("Channels"));
 			pnlChannels.setLayout(null);
-			pnlChannels.setBounds(new Rectangle(315, 15, 285, 175));
+			pnlChannels.setBounds(new Rectangle(315, 15, 285, 205));
 			pnlChannels.add(lblChannel, null);
 			pnlChannels.add(getCboChannel(), null);
 			pnlChannels.add(lblChan2, null);
@@ -372,7 +460,8 @@ public class MainForm extends JFrame implements ActionListener
 	private JButton getBtnJoin() {
 		if (btnJoin == null) {
 			btnJoin = new JButton();
-			btnJoin.setBounds(new Rectangle(70, 145, 100, 20));
+			btnJoin.addActionListener(this);
+			btnJoin.setBounds(new Rectangle(70, 165, 100, 20));
 			btnJoin.setText("Join");
 		}
 		return btnJoin;
@@ -381,7 +470,8 @@ public class MainForm extends JFrame implements ActionListener
 	private JButton getBtnPart() {
 		if (btnPart == null) {
 			btnPart = new JButton();
-			btnPart.setBounds(new Rectangle(175, 145, 100, 20));
+			btnPart.addActionListener(this);
+			btnPart.setBounds(new Rectangle(175, 165, 100, 20));
 			btnPart.setText("Leave");
 		}
 		return btnPart;
@@ -391,7 +481,7 @@ public class MainForm extends JFrame implements ActionListener
 		if (btnDisconnect == null) {
 			btnDisconnect = new JButton();
 			btnDisconnect.addActionListener(this);
-			btnDisconnect.setBounds(new Rectangle(175, 145, 100, 20));
+			btnDisconnect.setBounds(new Rectangle(175, 165, 100, 20));
 			btnDisconnect.setText("Disconnect");
 		}
 		return btnDisconnect;
@@ -402,7 +492,7 @@ public class MainForm extends JFrame implements ActionListener
 			pnlChannelInfo = new JPanel();
 			pnlChannelInfo.setBorder(new TitledBorder("Channel Information"));
 			pnlChannelInfo.setLayout(null);
-			pnlChannelInfo.setBounds(new Rectangle(15, 197, 583, 228));
+			pnlChannelInfo.setBounds(new Rectangle(15, 228, 583, 197));
 			pnlChannelInfo.add(getPnlUsers(), null);
 			pnlChannelInfo.add(getTxtDescription(), null);
 			pnlChannelInfo.add(getBtnKick(), null);
@@ -423,7 +513,7 @@ public class MainForm extends JFrame implements ActionListener
 		if (pnlUsers == null) {
 			pnlUsers = new JScrollPane();
 			pnlUsers.setBorder(new TitledBorder("Users"));
-			pnlUsers.setBounds(new Rectangle(10, 24, 190, 196));
+			pnlUsers.setBounds(new Rectangle(10, 47, 190, 173));
 			pnlUsers.setViewportView(getListUsers());
 		}
 		return pnlUsers;
@@ -439,7 +529,7 @@ public class MainForm extends JFrame implements ActionListener
 	private JTextArea getTxtDescription() {
 		if (txtDescription == null) {
 			txtDescription = new JTextArea();
-			txtDescription.setBounds(new Rectangle(211, 32, 365, 61));
+			txtDescription.setBounds(new Rectangle(207, 56, 365, 61));
 			txtDescription.setLineWrap(true);
 			txtDescription.setText("Channel Description Here");
 		}
@@ -485,5 +575,19 @@ public class MainForm extends JFrame implements ActionListener
 			txtConnPortUDP.setText("");
 		}
 		return txtConnPortUDP;
+	}
+
+	/**
+	 * This method initializes txtPass	
+	 * 	
+	 * @return javax.swing.JTextField	
+	 */
+	private JTextField getTxtPass() {
+		if (txtPass == null) {
+			txtPass = new JTextField();
+			txtPass.setBounds(new Rectangle(95, 142, 175, 20));
+			txtPass.setText("");
+		}
+		return txtPass;
 	}
 }  //  @jve:decl-index=0:visual-constraint="10,10"
