@@ -64,7 +64,7 @@ public class TCPThread extends Thread
 		{	
 			//write out the socket
 			sock.getOutputStream().write(xmlMsg.getBytes(), 0, xmlMsg.getBytes().length);
-			
+			sock.getOutputStream().flush();
 			System.out.println("SENDING: " + xmlMsg);
 		} 
 		catch (IOException e) 
