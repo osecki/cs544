@@ -120,6 +120,16 @@ public class MainForm extends JFrame implements ActionListener
 	        // Create and send connection command
 			CmdLib.CreateConnCommand(this.txtNick.getText(), "", this.txtName.getText(), this.txtPass.getText());
 			
+			//Temp fix for Bob
+			/*
+			try 
+			{
+				Thread.sleep(5000);
+			} catch (InterruptedException e) 
+			{
+				e.printStackTrace();
+			}
+			*/
 			// Create and send GetChans command
 			CmdLib.CreateGetChansCommand();
 			

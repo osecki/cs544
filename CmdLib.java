@@ -46,6 +46,46 @@ public class CmdLib
 					String command = root.Cmd.first().getValue();
 				}
 				
+				//check for Chans node
+				if (root.Chans.exists())
+				{
+					ChansType chans = root.Chans.first();
+					
+					for (int i = 0; i < chans.Chan.count(); i++)
+					{
+						String channelName;
+						String channelDesc;
+						String channelMode;
+						
+						//Store these in some object
+						
+						if (chans.Chan.at(i).Name.exists())
+							channelName = chans.Chan.at(i).Name.first().getValue();
+						
+						if (chans.Chan.at(i).Desc.exists())
+							channelDesc = chans.Chan.at(i).Desc.first().getValue();
+						
+						if (chans.Chan.at(i).Mode.exists())
+							channelMode = chans.Chan.at(i).Mode.first().getValue();
+					}
+				}
+				
+				//check for Users node
+				if (root.Users.exists())
+				{
+					UsersType users = root.Users.first();
+					
+					for (int i = 0; i < users.User.count(); i++)
+					{
+						String userNick;
+						
+						//Store these in some object
+						
+						if (users.User.at(i).Nick.exists())
+							userNick = users.User.at(i).Nick.first().getValue();
+					}
+				}
+				
 				//check for Status node
 				if (root.Stat.exists())
 				{
