@@ -1,3 +1,10 @@
+/*
+ *  File:  CmdLib.java
+ *  Modified:  March 11, 2009
+ *  Description:  This file contains the information to parse and build up the XML control messages.
+ *  Copyright (C) 2009 - File created for CS544 by Bill Shaya, Jordan Osecki, and Robert Cochran.
+ */
+
 import com.altova.*;
 import com.altova.types.*;
 import com.IRC.*;

@@ -1,4 +1,11 @@
 /*
+ *  File:  UDPReceiver.java
+ *  Modified:  March 11, 2009
+ *  Description:  This file controls the UDP receiving.
+ *  Copyright (C) 2009 - File used for CS544 by Bill Shaya, Jordan Osecki, and Robert Cochran.
+ */
+
+/*
  * @(#)AVReceive2.java	1.3 01/03/13
  *
  * Copyright (c) 1999-2001 Sun Microsystems, Inc. All Rights Reserved.
@@ -45,7 +52,6 @@ import javax.media.format.VideoFormat;
 import javax.media.Format;
 import javax.media.format.FormatChangeEvent;
 import javax.media.control.BufferControl;
-
 
 /**
  * AVReceive2 to receive RTP transmission using the new RTP API.

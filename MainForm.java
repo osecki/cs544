@@ -1,3 +1,10 @@
+/*
+ *  File:  MainForm.java
+ *  Modified:  March 11, 2009
+ *  Description:  This file creates the main GUI for the client.
+ *  Copyright (C) 2009 - File created for CS544 by Bill Shaya, Jordan Osecki, and Robert Cochran.
+ */
+
 import javax.media.Format;
 import javax.media.MediaLocator;
 import javax.swing.border.TitledBorder;

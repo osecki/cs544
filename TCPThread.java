@@ -1,3 +1,10 @@
+/*
+ *  File:  TCPThread.java
+ *  Modified:  March 11, 2009
+ *  Description:  This file controls the TCP stream.
+ *  Copyright (C) 2009 - File created for CS544 by Bill Shaya, Jordan Osecki, and Robert Cochran.
+ */
+
 import java.io.IOException;
 import java.net.*;
 
