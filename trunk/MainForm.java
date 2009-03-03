@@ -160,6 +160,9 @@ public class MainForm extends JFrame implements ActionListener
 			btnJoin.setEnabled(false);
 			cboChannel.setEnabled(false);
 			txtChannel.setEnabled(false);
+			
+			// Create and send disconnect command
+			CmdLib.CreateDisconnCommand(this.txtNick.getText());
 		}
 		else if (event.getSource() == btnJoin)
 		{
