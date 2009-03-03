@@ -122,9 +122,10 @@ public class MainForm extends JFrame implements ActionListener
 			//close the TCP socket
 			
 			//Close connections
+			this.tcpThread.Close();
 			this.udpReceiver.close();
 			this.udpTransmitter.stopTx();
-			this.tcpThread.Close();			
+			
 		}
 		else if (event.getSource() == btnConnect) // Button is clicked
 		{
