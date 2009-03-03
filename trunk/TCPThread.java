@@ -41,12 +41,16 @@ public class TCPThread extends Thread
 			//loop forever to read from socket
 			while(true)
 			{
-				int readLen = sock.getInputStream().read(buffer, 0, 1024);	//read socket
-				String incomingXML = new String(buffer);					//get string
-				incomingXML = incomingXML.substring(0, readLen);
-				System.out.println("RECEIVED: " + incomingXML);
+				if (sock.isConnected())
+				{
 				
-				CmdLib.ParseIncomingMessage(incomingXML);					//parse xml
+					int readLen = sock.getInputStream().read(buffer, 0, 1024);	//read socket
+					String incomingXML = new String(buffer);					//get string
+					incomingXML = incomingXML.substring(0, readLen);
+					System.out.println("RECEIVED: " + incomingXML);
+					
+					CmdLib.ParseIncomingMessage(incomingXML);					//parse xml
+				}
 				sleep(1000);												//sleep
 			}
 			
@@ -62,10 +66,13 @@ public class TCPThread extends Thread
 		//write data out the socket to the server
 		try 
 		{	
-			//write out the socket
-			sock.getOutputStream().write(xmlMsg.getBytes(), 0, xmlMsg.getBytes().length);
-			sock.getOutputStream().flush();
-			System.out.println("SENDING: " + xmlMsg);
+			if (sock.isConnected())
+			{
+				//write out the socket
+				sock.getOutputStream().write(xmlMsg.getBytes(), 0, xmlMsg.getBytes().length);
+				sock.getOutputStream().flush();
+				System.out.println("SENDING: " + xmlMsg);
+			}
 		} 
 		catch (IOException e) 
 		{
