@@ -1,7 +1,8 @@
 /*
  *  File:  TutorialPanel.java
  *  Modified:  March 11, 2009
- *  Description:  This will be the frame which shows the Tutorial.
+ *  Description:  This will be the frame which shows the Tutorial information.
+ *  Copyright (C) 2009 - File created for CS544 by Bill Shaya, Jordan Osecki, and Robert Cochran.
  */
 
 import java.awt.Dimension;

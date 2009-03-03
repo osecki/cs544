@@ -1,7 +1,8 @@
 /*
  *  File:  AboutPanel.java
  *  Modified:  March 11, 2009
- *  Description:  This will be the frame which shows the About information
+ *  Description:  This will be the frame which shows the About information.
+ *  Copyright (C) 2009 - File created for CS544 by Bill Shaya, Jordan Osecki, and Robert Cochran.
  */
 
 import java.awt.Dimension;
