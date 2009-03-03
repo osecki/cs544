@@ -17,6 +17,7 @@ import javax.swing.JComboBox;
 import javax.swing.JTextArea;
 import java.awt.event.*;
 import java.io.File;
+import java.awt.Dimension;
 
 public class MainForm extends JFrame implements ActionListener
 {
@@ -56,6 +57,8 @@ public class MainForm extends JFrame implements ActionListener
 	private JTextField txtConnPortUDP = null;
 	private JLabel lblPass = null;
 	private JTextField txtPass = null;
+	private JButton btnSocketConn = null;
+	private JButton btnSockDisconnect = null;
 	
 	public MainForm() 
 	{
@@ -97,13 +100,28 @@ public class MainForm extends JFrame implements ActionListener
 	// Method where events trigger
 	public void actionPerformed(ActionEvent event) 
 	{			
-		if (event.getSource() == btnConnect) // Button is clicked
+		if (event.getSource() == btnSocketConn)
 		{
+			//open the TCP socket
+
 			// Setup TCP thread and sockets due to the Connect command
 			String hostIP = this.txtConnIP.getText();
 			int hostTCPPort = Integer.parseInt(this.txtConnPortTCP.getText());
 	        tcpThread = new TCPThread(hostIP, hostTCPPort);
-	        tcpThread.start();	
+	        tcpThread.start();
+		}
+		else if (event.getSource() == this.btnSockDisconnect)
+		{
+			//close the TCP socket
+			
+			//Close connections
+			this.udpReceiver.close();
+			this.udpTransmitter.stopTx();
+			this.tcpThread.Close();			
+		}
+		else if (event.getSource() == btnConnect) // Button is clicked
+		{
+
 	        	        
 	        // Setup UDP receiver thread
 	        String[] argv = new String[1];
@@ -120,19 +138,6 @@ public class MainForm extends JFrame implements ActionListener
 	        // Create and send connection command
 			CmdLib.CreateConnCommand(this.txtNick.getText(), "", this.txtName.getText(), this.txtPass.getText());
 			
-			//Temp fix for Bob
-			/*
-			try 
-			{
-				Thread.sleep(5000);
-			} catch (InterruptedException e) 
-			{
-				e.printStackTrace();
-			}
-			*/
-			// Create and send GetChans command
-			CmdLib.CreateGetChansCommand();
-			
 			//Change button status
 			btnConnect.setEnabled(false);
 			btnDisconnect.setEnabled(true);
@@ -142,11 +147,6 @@ public class MainForm extends JFrame implements ActionListener
 		}
 		else if (event.getSource() == btnDisconnect)
 		{
-			//Close connections
-			this.udpReceiver.close();
-			this.udpTransmitter.stopTx();
-			this.tcpThread.Close();
-			
 			//Change button status
 			btnConnect.setEnabled(true);
 			btnDisconnect.setEnabled(false);	
@@ -208,7 +208,7 @@ public class MainForm extends JFrame implements ActionListener
 	}
 
 	private void initialize() {
-		this.setSize(619, 486);
+		this.setSize(619, 511);
 		this.setContentPane(getJContentPane());
 		this.setTitle("Voice IRC");
 	}
@@ -365,7 +365,7 @@ public class MainForm extends JFrame implements ActionListener
 			pnlConnection = new JPanel();
 			pnlConnection.setBorder(new TitledBorder("Connection"));
 			pnlConnection.setLayout(null);
-			pnlConnection.setBounds(new Rectangle(15, 15, 285, 206));
+			pnlConnection.setBounds(new Rectangle(15, 15, 285, 240));
 			pnlConnection.add(lblConnIP, null);
 			pnlConnection.add(lblConnPort, null);
 			pnlConnection.add(getTxtConnIP(), null);
@@ -379,6 +379,8 @@ public class MainForm extends JFrame implements ActionListener
 			pnlConnection.add(getTxtConnPortUDP(), null);
 			pnlConnection.add(lblPass, null);
 			pnlConnection.add(getTxtPass(), null);
+			pnlConnection.add(getBtnSocketConn(), null);
+			pnlConnection.add(getBtnSockDisconnect(), null);
 		}
 		return pnlConnection;
 	}
@@ -404,7 +406,7 @@ public class MainForm extends JFrame implements ActionListener
 	private JButton getBtnConnect() {
 		if (btnConnect == null) {
 			btnConnect = new JButton();
-			btnConnect.setBounds(new Rectangle(70, 165, 100, 20));
+			btnConnect.setBounds(new Rectangle(68, 203, 100, 20));
 			btnConnect.setText("Connect");
 			btnConnect.addActionListener(this);
 		}
@@ -440,7 +442,7 @@ public class MainForm extends JFrame implements ActionListener
 			pnlChannels = new JPanel();
 			pnlChannels.setBorder(new TitledBorder("Channels"));
 			pnlChannels.setLayout(null);
-			pnlChannels.setBounds(new Rectangle(315, 15, 285, 205));
+			pnlChannels.setBounds(new Rectangle(315, 15, 285, 240));
 			pnlChannels.add(lblChannel, null);
 			pnlChannels.add(getCboChannel(), null);
 			pnlChannels.add(lblChan2, null);
@@ -491,7 +493,7 @@ public class MainForm extends JFrame implements ActionListener
 		if (btnDisconnect == null) {
 			btnDisconnect = new JButton();
 			btnDisconnect.addActionListener(this);
-			btnDisconnect.setBounds(new Rectangle(175, 165, 100, 20));
+			btnDisconnect.setBounds(new Rectangle(173, 203, 100, 20));
 			btnDisconnect.setText("Disconnect");
 		}
 		return btnDisconnect;
@@ -502,7 +504,7 @@ public class MainForm extends JFrame implements ActionListener
 			pnlChannelInfo = new JPanel();
 			pnlChannelInfo.setBorder(new TitledBorder("Channel Information"));
 			pnlChannelInfo.setLayout(null);
-			pnlChannelInfo.setBounds(new Rectangle(15, 228, 583, 197));
+			pnlChannelInfo.setBounds(new Rectangle(20, 262, 583, 197));
 			pnlChannelInfo.add(getPnlUsers(), null);
 			pnlChannelInfo.add(getTxtDescription(), null);
 			pnlChannelInfo.add(getBtnKick(), null);
@@ -523,7 +525,7 @@ public class MainForm extends JFrame implements ActionListener
 		if (pnlUsers == null) {
 			pnlUsers = new JScrollPane();
 			pnlUsers.setBorder(new TitledBorder("Users"));
-			pnlUsers.setBounds(new Rectangle(10, 47, 190, 173));
+			pnlUsers.setBounds(new Rectangle(9, 23, 190, 173));
 			pnlUsers.setViewportView(getListUsers());
 		}
 		return pnlUsers;
@@ -539,7 +541,7 @@ public class MainForm extends JFrame implements ActionListener
 	private JTextArea getTxtDescription() {
 		if (txtDescription == null) {
 			txtDescription = new JTextArea();
-			txtDescription.setBounds(new Rectangle(207, 56, 365, 61));
+			txtDescription.setBounds(new Rectangle(207, 29, 365, 61));
 			txtDescription.setLineWrap(true);
 			txtDescription.setText("Channel Description Here");
 		}
@@ -573,11 +575,6 @@ public class MainForm extends JFrame implements ActionListener
 		return btnMute;
 	}
 
-	/**
-	 * This method initializes txtConnPortUDP	
-	 * 	
-	 * @return javax.swing.JTextField	
-	 */
 	private JTextField getTxtConnPortUDP() {
 		if (txtConnPortUDP == null) {
 			txtConnPortUDP = new JTextField();
@@ -587,11 +584,6 @@ public class MainForm extends JFrame implements ActionListener
 		return txtConnPortUDP;
 	}
 
-	/**
-	 * This method initializes txtPass	
-	 * 	
-	 * @return javax.swing.JTextField	
-	 */
 	private JTextField getTxtPass() {
 		if (txtPass == null) {
 			txtPass = new JTextField();
@@ -599,5 +591,25 @@ public class MainForm extends JFrame implements ActionListener
 			txtPass.setText("");
 		}
 		return txtPass;
+	}
+
+	private JButton getBtnSocketConn() {
+		if (btnSocketConn == null) {
+			btnSocketConn = new JButton();
+			btnSocketConn.addActionListener(this);
+			btnSocketConn.setBounds(new Rectangle(69, 174, 100, 22));
+			btnSocketConn.setText("TCP Open");
+		}
+		return btnSocketConn;
+	}
+
+	private JButton getBtnSockDisconnect() {
+		if (btnSockDisconnect == null) {
+			btnSockDisconnect = new JButton();
+			btnSockDisconnect.addActionListener(this);
+			btnSockDisconnect.setBounds(new Rectangle(174, 174, 100, 21));
+			btnSockDisconnect.setText("TCP Close");
+		}
+		return btnSockDisconnect;
 	}
 }  //  @jve:decl-index=0:visual-constraint="10,10"
