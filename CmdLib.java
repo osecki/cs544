@@ -5,6 +5,8 @@
  *  Copyright (C) 2009 - File created for CS544 by Bill Shaya, Jordan Osecki, and Robert Cochran.
  */
 
+import java.util.Vector;
+
 import com.altova.*;
 import com.altova.types.*;
 import com.IRC.*;
@@ -25,15 +27,23 @@ public class CmdLib
 	
 	public static void ParseIncomingMessage(String xmlMsg)
 	{
-		//We'll parse out the XML message and store the settings in objects
-		//and then let the GUI use them to update itself.
-		//We'll need to define the classes but for now, just create some local
-		//variables
+		// Parse out the XML message and store the settings in ResponseMessage objects
+		// and then let the GUI use them to update itself.
 		
 		try 
 		{
-			//load from string
+			// Load from string
 			com.IRC.IRC2 doc = com.IRC.IRC2.loadFromString(xmlMsg);
+			
+			// Generate Variables
+			Long id = 0L;
+			String command = "";
+			Vector <String> channelNames = new Vector <String> ();
+			Vector <String> channelDescs = new Vector <String> ();
+			Vector <String> channelModes = new Vector <String> ();
+			Vector <String> userNicks = new Vector <String> ();
+			Long statusCode = 0L;
+			String statusMsg = "";
 			
 			//check for VIRC root node
 			if (doc.VIRC.exists())
@@ -44,13 +54,13 @@ public class CmdLib
 				//check for transaction ID
 				if (root.ID.exists())
 				{
-					Long ID = root.ID.getValue();
+					id = root.ID.getValue();
 				}
 				
 				//check for command node
 				if (root.Cmd.exists())
 				{
-					String command = root.Cmd.first().getValue();
+					command = root.Cmd.first().getValue();
 				}
 				
 				//check for Chans node
@@ -64,16 +74,25 @@ public class CmdLib
 						String channelDesc;
 						String channelMode;
 						
-						//Store these in some object
+						// Store these in some object
 						
 						if (chans.Chan.at(i).Name.exists())
+						{
 							channelName = chans.Chan.at(i).Name.first().getValue();
+							channelNames.add(channelName);
+						}
 						
 						if (chans.Chan.at(i).Desc.exists())
+						{
 							channelDesc = chans.Chan.at(i).Desc.first().getValue();
+							channelDescs.add(channelDesc);
+						}
 						
 						if (chans.Chan.at(i).Mode.exists())
+						{
 							channelMode = chans.Chan.at(i).Mode.first().getValue();
+							channelModes.add(channelMode);
+						}
 					}
 				}
 				
@@ -89,7 +108,10 @@ public class CmdLib
 						//Store these in some object
 						
 						if (users.User.at(i).Nick.exists())
+						{
 							userNick = users.User.at(i).Nick.first().getValue();
+							userNicks.add(userNick);
+						}
 					}
 				}
 				
@@ -102,25 +124,26 @@ public class CmdLib
 					//check for status code
 					if (stat.Code.exists())
 					{
-						Long statusCode = stat.Code.first().getValue();
+						statusCode = stat.Code.first().getValue();
 					}
 					
 					//check for status message
 					if (stat.Msg.exists())
 					{
-						String statusMsg = stat.Msg.first().getValue();
+						statusMsg = stat.Msg.first().getValue();
 					}
 				}
 			}
+			
+			// If valid message, send to the GUI to do whatever it needs
+			// Need to populate objects and trigger the GUI to do things for updating
+			ResponseMessage respMsg = new ResponseMessage (id, command, channelNames, channelDescs, channelModes, userNicks, statusCode, statusMsg);
+			MainForm.UpdateGUI(respMsg);
 		} 
 		catch (Exception e) 
 		{
 			System.out.println("Error trying to parse out the server response message.");
 		}	
-		
-		//if valid message, send to the GUI to do whatever it needs
-		//need to populate objects and trigger the GUI to do something for updating
-		MainForm.UpdateGUI();
 	}
 	
 	// Method to create a conn XML command

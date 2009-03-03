@@ -11,6 +11,8 @@ import javax.swing.border.TitledBorder;
 import javax.swing.JPanel;
 import javax.swing.JFrame;
 import java.awt.Rectangle;
+
+import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -48,7 +50,7 @@ public class MainForm extends JFrame implements ActionListener
 	private JTextField txtNick = null;
 	private JPanel pnlChannels = null;
 	private JLabel lblChannel = null;
-	private JComboBox cboChannel = null;
+	private static JComboBox cboChannel = null;
 	private JLabel lblChan2 = null;
 	private JTextField txtChannel = null;
 	private JButton btnJoin = null;
@@ -57,7 +59,7 @@ public class MainForm extends JFrame implements ActionListener
 	private JPanel pnlChannelInfo = null;
 	private JList jList = null;  //  @jve:decl-index=0:visual-constraint="736,120"
 	private JScrollPane pnlUsers = null;
-	private JList listUsers = null;
+	private static JList listUsers = null;
 	private JTextArea txtDescription = null;
 	private JButton btnKick = null;
 	private JButton btnBan = null;
@@ -85,21 +87,18 @@ public class MainForm extends JFrame implements ActionListener
 		
 		CreateMenu();						//create application menu
 		InitGUI();							//initialize GUI
-		
-		//Test
-		this.cboChannel.addItem("Channel1");
-		this.cboChannel.addItem("Channel2");
 	}
 	
 	private void InitGUI()
 	{
+		this.btnSockDisconnect.setEnabled(false); //disable socket disconnect button
+		this.btnConnect.setEnabled(false);		//disable connect button
 		this.btnDisconnect.setEnabled(false);	//disable disconnect button
 		
 		this.cboChannel.setEnabled(false);		//disable channel drop down
 		this.txtChannel.setEnabled(false);		//disable channel textbox
 		this.btnJoin.setEnabled(false);			//disable join button
 		this.btnPart.setEnabled(false);			//disable part button
-		
 		
 		this.btnBan.setEnabled(false);		//disable ban button
 		this.btnKick.setEnabled(false);		//disable kick button
@@ -111,19 +110,21 @@ public class MainForm extends JFrame implements ActionListener
 	{			
 		if (event.getSource() == btnSocketConn)
 		{
-			//open the TCP socket
-
+			// Open the TCP socket
 			// Setup TCP thread and sockets due to the Connect command
 			String hostIP = this.txtConnIP.getText();
 			int hostTCPPort = Integer.parseInt(this.txtConnPortTCP.getText());
 	        tcpThread = new TCPThread(hostIP, hostTCPPort);
 	        tcpThread.start();
+	        
+	        // Change button statuses
+	        btnSocketConn.setEnabled(false);
+	        btnConnect.setEnabled(true);
 		}
 		else if (event.getSource() == this.btnSockDisconnect)
 		{
-			//close the TCP socket
-			
-			//Close connections
+			// Close the TCP socket
+			// Close connections
 			this.tcpThread.Close();
 			this.udpReceiver.close();
 			this.udpTransmitter.stopTx();
@@ -170,6 +171,10 @@ public class MainForm extends JFrame implements ActionListener
 			
 			// Create and send disconnect command
 			CmdLib.CreateDisconnCommand(this.txtNick.getText());
+			
+			// Change button statuses
+			btnDisconnect.setEnabled(false);
+			btnSockDisconnect.setEnabled(true);
 		}
 		else if (event.getSource() == btnJoin)
 		{
@@ -198,6 +203,18 @@ public class MainForm extends JFrame implements ActionListener
 			this.btnJoin.setEnabled(true);
 			this.btnPart.setEnabled(false);
 		}
+		else if (event.getSource() == btnKick)
+		{
+			
+		}
+		else if (event.getSource() == btnBan)
+		{
+			
+		}
+		else if (event.getSource() == btnMute)
+		{
+			
+		}
 		else
 		{
 			//this is a menu item
@@ -219,13 +236,40 @@ public class MainForm extends JFrame implements ActionListener
 
 	}	
 	
-	public static void UpdateGUI()
+	public static void UpdateGUI(ResponseMessage respMsg)
 	{
+		// Takes in a response message and updates the GUI accordingly
 		
+		if (respMsg.getCommand().equals("GetChans"))
+		{
+			cboChannel.removeAll();
+			
+			for (int i = 0; i < respMsg.getChannelNames().size(); i++)
+			{
+				cboChannel.addItem(respMsg.getChannelNames().elementAt(i));
+			}
+		}
+		else if (respMsg.getCommand().equals("GetUsers"))
+		{
+			DefaultListModel dlm = new DefaultListModel();
+			//dlm.addElement("Test1");
+			//dlm.addElement("Test2");
+			
+			for (int i = 0; i < respMsg.getUserNicks().size(); i++)
+			{
+				cboChannel.addItem(respMsg.getUserNicks().elementAt(i));
+			}
+			
+			listUsers = new JList(dlm);
+		}
+		else // Not sure if more than these need to be singled out at the moment
+		{
+			// TODO
+		}
 	}
 
 	private void initialize() {
-		this.setSize(619, 511);
+		this.setSize(619, 561);
 		this.setContentPane(getJContentPane());
 		this.setTitle("Voice IRC");
 	}
@@ -304,7 +348,6 @@ public class MainForm extends JFrame implements ActionListener
 		testMenuItem4.addActionListener(this);
 		testMenuItem5.addActionListener(this);
 		testMenuItem6.addActionListener(this);
-		
 		
 		
 		this.setJMenuBar(menuBar);								//add the menu bar to the frame
@@ -521,7 +564,7 @@ public class MainForm extends JFrame implements ActionListener
 			pnlChannelInfo = new JPanel();
 			pnlChannelInfo.setBorder(new TitledBorder("Channel Information"));
 			pnlChannelInfo.setLayout(null);
-			pnlChannelInfo.setBounds(new Rectangle(20, 262, 583, 197));
+			pnlChannelInfo.setBounds(new Rectangle(20, 262, 583, 232));
 			pnlChannelInfo.add(getPnlUsers(), null);
 			pnlChannelInfo.add(getTxtDescription(), null);
 			pnlChannelInfo.add(getBtnKick(), null);
@@ -542,7 +585,7 @@ public class MainForm extends JFrame implements ActionListener
 		if (pnlUsers == null) {
 			pnlUsers = new JScrollPane();
 			pnlUsers.setBorder(new TitledBorder("Users"));
-			pnlUsers.setBounds(new Rectangle(9, 23, 190, 173));
+			pnlUsers.setBounds(new Rectangle(9, 23, 190, 193));
 			pnlUsers.setViewportView(getListUsers());
 		}
 		return pnlUsers;
