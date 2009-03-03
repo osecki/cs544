@@ -10,14 +10,17 @@ import javax.media.MediaLocator;
 import javax.swing.border.TitledBorder;
 import javax.swing.JPanel;
 import javax.swing.JFrame;
-import java.awt.Rectangle;
 
+import java.awt.Component;
+import java.awt.Rectangle;
+import java.util.regex.*;
 import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JMenuBar;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import javax.swing.JList;
@@ -110,16 +113,28 @@ public class MainForm extends JFrame implements ActionListener
 	{			
 		if (event.getSource() == btnSocketConn)
 		{
-			// Open the TCP socket
-			// Setup TCP thread and sockets due to the Connect command
-			String hostIP = this.txtConnIP.getText();
-			int hostTCPPort = Integer.parseInt(this.txtConnPortTCP.getText());
-	        tcpThread = new TCPThread(hostIP, hostTCPPort);
-	        tcpThread.start();
-	        
-	        // Change button statuses
-	        btnSocketConn.setEnabled(false);
-	        btnConnect.setEnabled(true);
+			// Validate the IP and TCP Port boxes are filled correctly, give an error if not
+			String[] tempIP = txtConnIP.getText().split("\\.");
+			if ( tempIP.length == 4 && Pattern.matches("^\\d+$", tempIP[0]) && Pattern.matches("^\\d+$", tempIP[1]) &&
+					Pattern.matches("^\\d+$", tempIP[2]) && Pattern.matches("^\\d+$", tempIP[3]) && 
+					Pattern.matches("^\\d+$", this.txtConnPortTCP.getText()) )
+			{
+				// Open the TCP socket
+				// Setup TCP thread and sockets due to the Connect command
+				String hostIP = this.txtConnIP.getText();
+				int hostTCPPort = Integer.parseInt(this.txtConnPortTCP.getText());
+		        tcpThread = new TCPThread(hostIP, hostTCPPort);
+		        tcpThread.start();
+		        
+		        // Change button statuses
+		        btnSocketConn.setEnabled(false);
+		        btnConnect.setEnabled(true);
+			}
+			else
+			{
+				JOptionPane.showMessageDialog(getJFrame(), "Please enter a valid IP address and TCP port number.",
+        			    "Invalid Input Error", JOptionPane.WARNING_MESSAGE);
+			}
 		}
 		else if (event.getSource() == this.btnSockDisconnect)
 		{
@@ -131,34 +146,52 @@ public class MainForm extends JFrame implements ActionListener
 			
 			this.udpSetup = false;
 			
+			// Change button statuses
+			btnSockDisconnect.setEnabled(false);
+			btnConnect.setEnabled(false);
+			btnSocketConn.setEnabled(true);
 		}
 		else if (event.getSource() == btnConnect) // Button is clicked
 		{
-			if (!this.udpSetup)
-			{       
-				this.udpSetup = true;
-				
-		        // Setup UDP receiver thread
-		        String[] argv = new String[1];
-		        argv[0] = this.txtConnIP.getText() + "/" + this.txtConnPortUDP.getText();
-		        udpReceiver = new UDPReceiver(argv);
-		        udpReceiver.start();
+			// Validate the textboxes are filled correctly, give an error if not
+			String[] tempIP = txtConnIP.getText().split("\\.");
+			if ( tempIP.length == 4 && Pattern.matches("^\\d+$", tempIP[0]) && Pattern.matches("^\\d+$", tempIP[1]) &&
+					Pattern.matches("^\\d+$", tempIP[2]) && Pattern.matches("^\\d+$", tempIP[3]) && 
+					Pattern.matches("^\\d+$", this.txtConnPortTCP.getText()) && Pattern.matches("^\\d+$", this.txtConnPortUDP.getText()) &&
+					! txtNick.getText().equals("") && ! txtName.getText().equals("") && ! txtPass.getText().equals(""))
+			{
+				if (!this.udpSetup)
+				{       
+					this.udpSetup = true;
+					
+			        // Setup UDP receiver thread
+			        String[] argv = new String[1];
+			        argv[0] = this.txtConnIP.getText() + "/" + this.txtConnPortUDP.getText();
+			        udpReceiver = new UDPReceiver(argv);
+			        udpReceiver.start();
+		       
+			        // Setup UDP transmitter thread
+			    	udpTransmitter = new UDPTransmitter(new MediaLocator("javasound://44100"),
+			    					     this.txtConnIP.getText(), this.txtConnPortUDP.getText(), null);    
+			        udpTransmitter.start();
+				}
 	       
-		        // Setup UDP transmitter thread
-		    	udpTransmitter = new UDPTransmitter(new MediaLocator("javasound://44100"),
-		    					     this.txtConnIP.getText(), this.txtConnPortUDP.getText(), null);    
-		        udpTransmitter.start();
+		        // Create and send connection command
+				CmdLib.CreateConnCommand(this.txtNick.getText(), "", this.txtName.getText(), this.txtPass.getText());
+				
+				//Change button status
+				btnConnect.setEnabled(false);
+				btnDisconnect.setEnabled(true);
+				btnJoin.setEnabled(true);
+				cboChannel.setEnabled(true);
+				txtChannel.setEnabled(true);
+				btnSockDisconnect.setEnabled(false);
 			}
-       
-	        // Create and send connection command
-			CmdLib.CreateConnCommand(this.txtNick.getText(), "", this.txtName.getText(), this.txtPass.getText());
-			
-			//Change button status
-			btnConnect.setEnabled(false);
-			btnDisconnect.setEnabled(true);
-			btnJoin.setEnabled(true);
-			cboChannel.setEnabled(true);
-			txtChannel.setEnabled(true);
+			else
+			{
+				JOptionPane.showMessageDialog(getJFrame(), "Please enter a valid IP, port numbers, and user information.",
+        			    "Invalid Input Error", JOptionPane.WARNING_MESSAGE);
+			}
 		}
 		else if (event.getSource() == btnDisconnect)
 		{
@@ -444,7 +477,6 @@ public class MainForm extends JFrame implements ActionListener
 		}
 		return pnlConnection;
 	}
-
 	private JTextField getTxtConnIP() {
 		if (txtConnIP == null) {
 			txtConnIP = new JTextField();
@@ -457,11 +489,10 @@ public class MainForm extends JFrame implements ActionListener
 		if (txtConnPortTCP == null) {
 			txtConnPortTCP = new JTextField();
 			txtConnPortTCP.setBounds(new Rectangle(95, 55, 77, 20));
-			txtConnPortTCP.setText("");
+			txtConnPortTCP.setText("TCP");
 		}
 		return txtConnPortTCP;
 	}
-
 
 	private JButton getBtnConnect() {
 		if (btnConnect == null) {
@@ -639,7 +670,7 @@ public class MainForm extends JFrame implements ActionListener
 		if (txtConnPortUDP == null) {
 			txtConnPortUDP = new JTextField();
 			txtConnPortUDP.setBounds(new Rectangle(190, 55, 77, 20));
-			txtConnPortUDP.setText("");
+			txtConnPortUDP.setText("UDP");
 		}
 		return txtConnPortUDP;
 	}
