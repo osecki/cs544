@@ -28,6 +28,8 @@ import java.awt.Dimension;
 
 public class MainForm extends JFrame implements ActionListener
 {
+	private boolean udpSetup = false;
+	
 	private UDPReceiver udpReceiver;
 	private UDPTransmitter udpTransmitter;
 	private TCPThread tcpThread;
@@ -126,22 +128,26 @@ public class MainForm extends JFrame implements ActionListener
 			this.udpReceiver.close();
 			this.udpTransmitter.stopTx();
 			
+			this.udpSetup = false;
+			
 		}
 		else if (event.getSource() == btnConnect) // Button is clicked
 		{
-
-	        	        
-	        // Setup UDP receiver thread
-	        String[] argv = new String[1];
-	        argv[0] = this.txtConnIP.getText() + "/" + this.txtConnPortUDP.getText();
-	        udpReceiver = new UDPReceiver(argv);
-	        udpReceiver.start();
-       
-	        // Setup UDP transmitter thread
-	    	udpTransmitter = new UDPTransmitter(new MediaLocator("javasound://44100"),
-	    					     this.txtConnIP.getText(), this.txtConnPortUDP.getText(), null);    
-	        udpTransmitter.start();
-	        
+			if (!this.udpSetup)
+			{       
+				this.udpSetup = true;
+				
+		        // Setup UDP receiver thread
+		        String[] argv = new String[1];
+		        argv[0] = this.txtConnIP.getText() + "/" + this.txtConnPortUDP.getText();
+		        udpReceiver = new UDPReceiver(argv);
+		        udpReceiver.start();
+	       
+		        // Setup UDP transmitter thread
+		    	udpTransmitter = new UDPTransmitter(new MediaLocator("javasound://44100"),
+		    					     this.txtConnIP.getText(), this.txtConnPortUDP.getText(), null);    
+		        udpTransmitter.start();
+			}
        
 	        // Create and send connection command
 			CmdLib.CreateConnCommand(this.txtNick.getText(), "", this.txtName.getText(), this.txtPass.getText());
