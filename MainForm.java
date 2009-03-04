@@ -18,6 +18,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JMenuBar;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import javax.swing.JList;
@@ -61,7 +62,6 @@ public class MainForm extends JFrame implements ActionListener
 	private JButton btnPart = null;
 	private JButton btnDisconnect = null;
 	private JPanel pnlChannelInfo = null;
-	private JList jList = null;  //  @jve:decl-index=0:visual-constraint="736,120"
 	private JScrollPane pnlUsers = null;
 	private static JList listUsers = null;
 	private JTextArea txtDescription = null;
@@ -70,7 +70,7 @@ public class MainForm extends JFrame implements ActionListener
 	private JButton btnMute = null;
 	private JTextField txtConnPortUDP = null;
 	private JLabel lblPass = null;
-	private JTextField txtPass = null;
+	private JPasswordField txtPass = null;
 	private JButton btnSocketConn = null;
 	private JButton btnSockDisconnect = null;
 	private JTextArea txtChannelDisplayName = null;
@@ -110,8 +110,8 @@ public class MainForm extends JFrame implements ActionListener
 		this.btnKick.setEnabled(false);		//disable kick button
 		this.btnMute.setEnabled(false);		//disable mute button
 		
-		this.txtChannelDisplayName.setEnabled(false);	//disable
-		this.txtDescription.setEnabled(false);			//disable
+		this.txtChannelDisplayName.setEditable(false);	//disable
+		this.txtDescription.setEditable(false);			//disable
 	}
 	
 	// Method where events trigger
@@ -164,10 +164,10 @@ public class MainForm extends JFrame implements ActionListener
 			if ( tempIP.length == 4 && Pattern.matches("^\\d+$", tempIP[0]) && Pattern.matches("^\\d+$", tempIP[1]) &&
 					Pattern.matches("^\\d+$", tempIP[2]) && Pattern.matches("^\\d+$", tempIP[3]) && 
 					Pattern.matches("^\\d+$", this.txtConnPortTCP.getText()) && Pattern.matches("^\\d+$", this.txtConnPortUDP.getText()) &&
-					! txtNick.getText().equals("") && ! txtName.getText().equals("") && ! txtPass.getText().equals(""))
+					! txtNick.getText().equals("") && ! txtName.getText().equals("") && ! txtPass.getText().equals("") )
 			{
-				if (!this.udpSetup)
-				{       
+				if ( ! this.udpSetup )
+				{
 					this.udpSetup = true;
 					
 			        // Setup UDP receiver thread
@@ -295,9 +295,11 @@ public class MainForm extends JFrame implements ActionListener
 		}
 		else if (event.getSource() == btnKick)
 		{
-			if ( operator && jList.getSelectedIndex() != -1 )
+			//System.out.println("TEST:" + listUsers.getSelectedIndex());
+			
+			if ( operator && listUsers.getSelectedIndex() != -1 )
 			{
-				CmdLib.CreateKickCommand(channelName, (String)jList.getSelectedValue());
+				CmdLib.CreateKickCommand(channelName, (String)listUsers.getSelectedValue());
 			}
 			else
 			{
@@ -307,9 +309,11 @@ public class MainForm extends JFrame implements ActionListener
 		}
 		else if (event.getSource() == btnBan)
 		{
-			if ( operator && jList.getSelectedIndex() != -1 )
+			//System.out.println("TEST:" + listUsers.getSelectedIndex());
+			
+			if ( operator && listUsers.getSelectedIndex() != -1 )
 			{
-				CmdLib.CreateBanCommand(channelName, (String)jList.getSelectedValue());
+				CmdLib.CreateBanCommand(channelName, (String)listUsers.getSelectedValue());
 			}
 			else
 			{
@@ -319,9 +323,11 @@ public class MainForm extends JFrame implements ActionListener
 		}
 		else if (event.getSource() == btnMute)
 		{
-			if ( jList.getSelectedIndex() != -1 )
+			//System.out.println("TEST:" + listUsers.getSelectedIndex());
+			
+			if ( listUsers.getSelectedIndex() != -1 )
 			{
-				CmdLib.CreateMuteCommand(channelName, (String)jList.getSelectedValue());
+				CmdLib.CreateMuteCommand(channelName, (String)listUsers.getSelectedValue());
 			}
 			else
 			{
@@ -367,21 +373,18 @@ public class MainForm extends JFrame implements ActionListener
 		else if (respMsg.getCommand().equals("GetUsers"))
 		{
 			DefaultListModel dlm = new DefaultListModel();
-			//dlm.addElement("Test1");
-			//dlm.addElement("Test2");
+			//dlm.addElement("TestName");
 			
 			for (int i = 0; i < respMsg.getUserNicks().size(); i++)
-			{
-				cboChannel.addItem(respMsg.getUserNicks().elementAt(i));
-			}
+				dlm.addElement(respMsg.getUserNicks().elementAt(i));
 			
-			listUsers = new JList(dlm);
+			listUsers.setModel(dlm);
 		}
-		else if ( respMsg.getCommand().equals("Join") )
+		else if ( respMsg.getStatusMsg().contains("joined") )
 		{
 			CmdLib.CreateGetUsersCommand(channelName);
 		}
-		else if ( respMsg.getCommand().equals("Connect") )
+		else if ( respMsg.getStatusMsg().contains("connected") )
 		{
 			CmdLib.CreateGetChansCommand();
 		}
@@ -563,9 +566,28 @@ public class MainForm extends JFrame implements ActionListener
 			pnlConnection.add(getTxtPass(), null);
 			pnlConnection.add(getBtnSocketConn(), null);
 			pnlConnection.add(getBtnSockDisconnect(), null);
+			
+			txtConnPortTCP.addFocusListener(new FocusListener()
+			{
+	        	public void focusGained (FocusEvent e) { addFocus(txtConnPortTCP); }
+	        	public void focusLost (FocusEvent e) {}
+			});
+			
+			txtConnPortUDP.addFocusListener(new FocusListener()
+			{
+	        	public void focusGained (FocusEvent e) { addFocus(txtConnPortUDP); }
+	        	public void focusLost (FocusEvent e) {}
+			});
 		}
 		return pnlConnection;
 	}
+	
+	// Method used to create focus in each text field
+	public void addFocus(JTextField tf)
+	{
+		tf.selectAll();
+	}
+	
 	private JTextField getTxtConnIP() {
 		if (txtConnIP == null) {
 			txtConnIP = new JTextField();
@@ -709,13 +731,6 @@ public class MainForm extends JFrame implements ActionListener
 		return pnlChannelInfo;
 	}
 
-	private JList getJList() {
-		if (jList == null) {
-			jList = new JList();
-		}
-		return jList;
-	}
-
 	private JScrollPane getPnlUsers() {
 		if (pnlUsers == null) {
 			pnlUsers = new JScrollPane();
@@ -748,6 +763,7 @@ public class MainForm extends JFrame implements ActionListener
 			btnKick = new JButton();
 			btnKick.setBounds(new Rectangle(209, 194, 100, 20));
 			btnKick.setText("Kick");
+			btnKick.addActionListener(this);
 		}
 		return btnKick;
 	}
@@ -757,6 +773,7 @@ public class MainForm extends JFrame implements ActionListener
 			btnBan = new JButton();
 			btnBan.setBounds(new Rectangle(328, 194, 100, 20));
 			btnBan.setText("Ban");
+			btnBan.addActionListener(this);
 		}
 		return btnBan;
 	}
@@ -766,6 +783,7 @@ public class MainForm extends JFrame implements ActionListener
 			btnMute = new JButton();
 			btnMute.setBounds(new Rectangle(448, 194, 100, 20));
 			btnMute.setText("Mute");
+			btnMute.addActionListener(this);
 		}
 		return btnMute;
 	}
@@ -781,9 +799,10 @@ public class MainForm extends JFrame implements ActionListener
 
 	private JTextField getTxtPass() {
 		if (txtPass == null) {
-			txtPass = new JTextField();
+			txtPass = new JPasswordField();
 			txtPass.setBounds(new Rectangle(95, 144, 175, 20));
 			txtPass.setText("");
+			txtPass.setEchoChar('*');
 		}
 		return txtPass;
 	}
