@@ -6,9 +6,6 @@
  */
 
 import java.util.Vector;
-
-import com.altova.*;
-import com.altova.types.*;
 import com.IRC.*;
 
 public class CmdLib 
