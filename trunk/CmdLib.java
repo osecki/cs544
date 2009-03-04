@@ -162,6 +162,8 @@ public class CmdLib
 			//add transaction ID
 			root.ID.setValue(GetTransID());
 			
+			root.Version.setValue("1.1");
+			
 			//add command node
 			root.Cmd.append().setValue(CommandType.Conn.toString());
 			
@@ -211,6 +213,8 @@ public class CmdLib
 			//add transaction ID
 			root.ID.setValue(GetTransID());
 			
+			root.Version.setValue("1.1");
+			
 			//add command node
 			root.Cmd.append().setValue(CommandType.Disconn.toString());
 			
@@ -250,6 +254,8 @@ public class CmdLib
 			
 			//add transaction ID
 			root.ID.setValue(GetTransID());
+			
+			root.Version.setValue("1.1");
 			
 			//add command node
 			root.Cmd.append().setValue(CommandType.Join.toString());
@@ -300,6 +306,8 @@ public class CmdLib
 			//add transaction ID
 			root.ID.setValue(GetTransID());
 			
+			root.Version.setValue("1.1");
+			
 			//add command node
 			root.Cmd.append().setValue(CommandType.Part.toString());
 			
@@ -348,6 +356,8 @@ public class CmdLib
 			
 			//add transaction ID
 			root.ID.setValue(GetTransID());
+			
+			root.Version.setValue("1.1");
 			
 			//add command node
 			root.Cmd.append().setValue(CommandType.Kick.toString());
@@ -398,6 +408,8 @@ public class CmdLib
 			//add transaction ID
 			root.ID.setValue(GetTransID());
 			
+			root.Version.setValue("1.1");
+			
 			//add command node
 			root.Cmd.append().setValue(CommandType.Ban.toString());
 			
@@ -446,6 +458,8 @@ public class CmdLib
 			
 			//add transaction ID
 			root.ID.setValue(GetTransID());
+			
+			root.Version.setValue("1.1");
 			
 			//add command node
 			root.Cmd.append().setValue(CommandType.Mute.toString());
@@ -496,6 +510,8 @@ public class CmdLib
 			//add transaction ID
 			root.ID.setValue(GetTransID());
 			
+			root.Version.setValue("1.1");
+			
 			//add command node
 			root.Cmd.append().setValue(CommandType.NewDesc.toString());
 			
@@ -539,6 +555,8 @@ public class CmdLib
 			//add transaction ID
 			root.ID.setValue(GetTransID());
 			
+			root.Version.setValue("1.1");
+			
 			//add command node
 			root.Cmd.append().setValue(CommandType.GetChans.toString());
 			
@@ -569,6 +587,8 @@ public class CmdLib
 			
 			//add transaction ID
 			root.ID.setValue(GetTransID());
+			
+			root.Version.setValue("1.1");
 			
 			//add command node
 			root.Cmd.append().setValue(CommandType.GetUsers.toString());
