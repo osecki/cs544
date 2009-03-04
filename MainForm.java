@@ -14,6 +14,8 @@ import javax.swing.JFrame;
 import java.awt.Component;
 import java.awt.Rectangle;
 import java.util.regex.*;
+
+import javax.swing.ComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
@@ -54,8 +56,11 @@ public class MainForm extends JFrame implements ActionListener
 	private JPanel pnlChannels = null;
 	private JLabel lblChannel = null;
 	private static JComboBox cboChannel = null;
-	private JLabel lblChan2 = null;
+	//private JButton btnRefreshChan = null;
+	private JLabel lblChanName = null;
+	private JLabel lblChanDesc = null;
 	private JTextField txtChannel = null;
+	private JTextField txtChannel2 = null;
 	private JButton btnJoin = null;
 	private JButton btnPart = null;
 	private JButton btnDisconnect = null;
@@ -67,7 +72,6 @@ public class MainForm extends JFrame implements ActionListener
 	private JButton btnKick = null;
 	private JButton btnBan = null;
 	private JButton btnMute = null;
-
 	private JTextField txtConnPortUDP = null;
 	private JLabel lblPass = null;
 	private JTextField txtPass = null;
@@ -99,7 +103,9 @@ public class MainForm extends JFrame implements ActionListener
 		this.btnDisconnect.setEnabled(false);	//disable disconnect button
 		
 		this.cboChannel.setEnabled(false);		//disable channel drop down
+		//this.btnRefreshChan.setEnabled(false);  //disable refresh channel button
 		this.txtChannel.setEnabled(false);		//disable channel textbox
+		this.txtChannel2.setEnabled(false); 	//disable channel textbox 2
 		this.btnJoin.setEnabled(false);			//disable join button
 		this.btnPart.setEnabled(false);			//disable part button
 		
@@ -184,7 +190,9 @@ public class MainForm extends JFrame implements ActionListener
 				btnDisconnect.setEnabled(true);
 				btnJoin.setEnabled(true);
 				cboChannel.setEnabled(true);
+				//btnRefresh
 				txtChannel.setEnabled(true);
+				txtChannel2.setEnabled(true);
 				btnSockDisconnect.setEnabled(false);
 			}
 			else
@@ -211,18 +219,29 @@ public class MainForm extends JFrame implements ActionListener
 		}
 		else if (event.getSource() == btnJoin)
 		{
-			//if there is text in the text box, grab it
+			if ( ((String)cboChannel.getSelectedItem()).equals("(Select One)") )
+			{
+				System.out.println("YOOo");
+			}
+			
+			// If there is text in the text box, grab it
 			String channelName = this.txtChannel.getText();
+			
+			// Otherwise grab from the drop-down menu
+			//if ()
+			
 			String nick = this.txtNick.getText();
 			
-			//Create join command
+			// Create join command
 			CmdLib.CreateJoinCommand(channelName, nick);
 			
-			//Create Get users command
+			// Create Get users command
 			CmdLib.CreateGetUsersCommand(channelName);
 			
+			// Change button statuses
 			this.btnJoin.setEnabled(false);
 			this.btnPart.setEnabled(true);
+			this.btnMute.setEnabled(true);
 		}
 		else if (event.getSource() == btnPart)
 		{
@@ -275,12 +294,15 @@ public class MainForm extends JFrame implements ActionListener
 		
 		if (respMsg.getCommand().equals("GetChans"))
 		{
-			cboChannel.removeAll();
+			cboChannel.removeAllItems();
 			
 			for (int i = 0; i < respMsg.getChannelNames().size(); i++)
 			{
-				cboChannel.addItem(respMsg.getChannelNames().elementAt(i));
+				cboChannel.insertItemAt(respMsg.getChannelNames().elementAt(i), 0);
 			}
+			
+			cboChannel.insertItemAt("(Select One)", 0);
+			cboChannel.setSelectedIndex(0);
 		}
 		else if (respMsg.getCommand().equals("GetUsers"))
 		{
@@ -524,9 +546,12 @@ public class MainForm extends JFrame implements ActionListener
 
 	private JPanel getPnlChannels() {
 		if (pnlChannels == null) {
-			lblChan2 = new JLabel();
-			lblChan2.setBounds(new Rectangle(16, 55, 74, 21));
-			lblChan2.setText("New:");
+			lblChanName = new JLabel();
+			lblChanName.setBounds(new Rectangle(16, 55, 74, 21));
+			lblChanName.setText("New Name:");
+			lblChanDesc = new JLabel();
+			lblChanDesc.setBounds(new Rectangle(16, 84, 74, 21));
+			lblChanDesc.setText("New Desc:");
 			lblChannel = new JLabel();
 			lblChannel.setBounds(new Rectangle(15, 26, 73, 19));
 			lblChannel.setText("Channel:");
@@ -536,8 +561,10 @@ public class MainForm extends JFrame implements ActionListener
 			pnlChannels.setBounds(new Rectangle(315, 15, 285, 240));
 			pnlChannels.add(lblChannel, null);
 			pnlChannels.add(getCboChannel(), null);
-			pnlChannels.add(lblChan2, null);
+			pnlChannels.add(lblChanName, null);
 			pnlChannels.add(getTxtChannel(), null);
+			pnlChannels.add(lblChanDesc, null);
+			pnlChannels.add(getTxtChannel2(), null);
 			pnlChannels.add(getBtnJoin(), null);
 			pnlChannels.add(getBtnPart(), null);
 		}
@@ -548,6 +575,7 @@ public class MainForm extends JFrame implements ActionListener
 		if (cboChannel == null) {
 			cboChannel = new JComboBox();
 			cboChannel.setBounds(new Rectangle(93, 25, 176, 23));
+			cboChannel.addItem("(Select One)");
 		}
 		return cboChannel;
 	}
@@ -558,6 +586,14 @@ public class MainForm extends JFrame implements ActionListener
 			txtChannel.setBounds(new Rectangle(92, 55, 176, 23));
 		}
 		return txtChannel;
+	}
+	
+	private JTextField getTxtChannel2() {
+		if (txtChannel2 == null) {
+			txtChannel2 = new JTextField();
+			txtChannel2.setBounds(new Rectangle(92, 84, 176, 23));
+		}
+		return txtChannel2;
 	}
 
 	private JButton getBtnJoin() {
