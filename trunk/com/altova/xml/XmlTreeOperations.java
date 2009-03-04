@@ -11,6 +11,7 @@ import org.w3c.dom.Text;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.File;
 import java.math.*;
 import java.util.*;
 
@@ -304,6 +305,23 @@ public class XmlTreeOperations
 		setValue(node, member, getFormatter(member).format(bytearr));
 	}
 	
+	public static void setValue(Node node, MemberInfo member, javax.xml.namespace.QName qname)
+	{
+		if (qname.getNamespaceURI().equals(javax.xml.XMLConstants.NULL_NS_URI))
+		{
+			setValue(node, member, qname.getLocalPart());
+			return;
+		}
+		
+		String prefix = node.lookupPrefix(qname.getNamespaceURI());
+		if (prefix == null)
+		{
+			prefix = findUnusedPrefix(node, qname.getPrefix());
+			((Element)node).setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:" + prefix, qname.getNamespaceURI());
+		}
+		setValue(node, member, prefix + ":" + qname.getLocalPart());	
+	}
+	
 	public static Node addElement(Node node, MemberInfo member)
 	{
 		String prefix = "";
@@ -373,6 +391,21 @@ public class XmlTreeOperations
 		return getFormatter(member).parseBinary( getTextContent(node) );
 	}
 
+	public static javax.xml.namespace.QName castToQName(Node node, MemberInfo member)
+	{
+		String value = getTextValue(node);
+		int i = value.indexOf(':');
+		if (i == -1)
+			return com.altova.CoreTypes.castToQName(value);
+		
+		String prefix = value.substring(0, i);
+		String local = value.substring(i+1);
+		
+		String uri = node.lookupNamespaceURI(prefix);
+		
+		return new javax.xml.namespace.QName(uri, local, prefix);
+	}
+	
 	public static Node findAttribute( Node node,  MemberInfo member )
 	{
 		Element el = (Element) node;
@@ -448,7 +481,7 @@ public class XmlTreeOperations
 		
 		try
 		{
-			Document doc = builder.parse(filename);
+			Document doc = builder.parse( new File(filename));
 			return doc;
 		}
 		catch (Exception e)
@@ -582,16 +615,17 @@ public class XmlTreeOperations
 		return result.toString();
 	}
 
-	private static void internalSave(javax.xml.transform.Result result, Document doc, String encoding, boolean bIndent) throws Exception
+	protected static void internalSave(javax.xml.transform.Result result, Node node, String encoding, boolean bIndent) throws Exception
 	{
 		try 
 		{
 			javax.xml.transform.Source source
-					= new javax.xml.transform.dom.DOMSource(doc);
+					= new javax.xml.transform.dom.DOMSource(node);
 			javax.xml.transform.Transformer transformer
 					= javax.xml.transform.TransformerFactory.newInstance().newTransformer();
 			if (encoding != null)
 				transformer.setOutputProperty("encoding", encoding);
+			Document doc = node.getNodeType() == Node.DOCUMENT_NODE ? (Document) node : node.getOwnerDocument();
 			if (doc.getDoctype() != null) 
 			{
 				if (doc.getDoctype().getPublicId() != null)
@@ -814,7 +848,7 @@ public class XmlTreeOperations
 		
 		if (nameNsUri != null && nameNsUri.length() > 0)
 		{
-			namePrefix = lookupPrefix(element, nameNsUri);
+			namePrefix = element.lookupPrefix(nameNsUri);
 			if (namePrefix == null)
 			{
 				if (inlinedNamePrefix.length() > 0)
@@ -830,7 +864,7 @@ public class XmlTreeOperations
 		
 		if (valueNsUri != null && valueNsUri.length() > 0)
 		{	
-			valuePrefix = lookupPrefix(element, valueNsUri);
+			valuePrefix = element.lookupPrefix(valueNsUri);
 			if (valuePrefix == null)
 			{
 				valuePrefix = "ns" + staticNSCount++;
@@ -843,30 +877,29 @@ public class XmlTreeOperations
 		
 		element.setAttributeNS(nameNsUri, namePrefix + name, valuePrefix + value);
 	}
+		
+	private static String findUnusedPrefix(Node node)
+	{
+		return findUnusedPrefix(node, null);
+	}
 	
-	protected static String lookupPrefix(org.w3c.dom.Node node, String URI) {
-		if (node == null || URI == null || URI.equals(""))
-			return null;
-
-		if (node.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
-			org.w3c.dom.NamedNodeMap attrs = node.getAttributes();
-			if (attrs != null) {
-				int len = attrs.getLength();
-				for (int i = 0; i < len; i++) {
-					org.w3c.dom.Attr attr = (org.w3c.dom.Attr)attrs.item(i);
-					String name = attr.getName();
-					String value = attr.getValue();
-					if (value != null && value.equals(URI)) {
-						if (name.startsWith("xmlns:"))
-							return name.substring(6);
-					}
-				}
-			}
-			return lookupPrefix(node.getParentNode(), URI);
-		} else if (node.getNodeType() == org.w3c.dom.Node.ATTRIBUTE_NODE) {
-			return lookupPrefix(((org.w3c.dom.Attr)node).getOwnerElement(), URI);
-		} else {
-			return null;
+	public static String findUnusedPrefix(Node node, String prefixHint)
+	{
+		String pp = prefixHint;
+		if (pp == null || pp.equals(javax.xml.XMLConstants.DEFAULT_NS_PREFIX))
+			pp = "n";
+		else
+		{
+			if (node.lookupNamespaceURI(pp) == null)
+				return pp;
+		}
+		
+		int n = 1;
+		while (true)
+		{
+			String s = pp + String.valueOf(n);
+			if (node.lookupNamespaceURI(s) == null)
+				return s;
 		}
 	}
 		

@@ -158,7 +158,7 @@ public class DateTime extends CalendarBase
 		Calendar cal = Calendar.getInstance();
 		cal.set( year, month-1, day, hour, minute, second);
 		cal.set( Calendar.MILLISECOND, getMillisecond() );
-		hasTZ = TZ_OFFSET; // necessary, because Calendar object always has timezone.
+		// hasTZ = TZ_OFFSET; // necessary, because Calendar object always has timezone.
 		cal.set(Calendar.ZONE_OFFSET, offsetTZ * 60000);
 		//cal.setTimeZone( (TimeZone)new SimpleTimeZone(offsetTZ * 60000, "") );
 		return cal;

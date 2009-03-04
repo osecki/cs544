@@ -56,7 +56,7 @@ public class XmlFormatter implements ValueFormatter
 	public String format(byte[] v)
 	{
 		if( v == null ) return "";
-		String sResult = new sun.misc.BASE64Encoder().encode(v);
+		String sResult = com.altova.Base64.encode( v);
 		return sResult.replaceAll( "\r", "" );
 	}
 	
@@ -71,7 +71,7 @@ public class XmlFormatter implements ValueFormatter
 		String newvalue = v.replaceAll("\\s{2,}", "").trim();	// collapse whitespace
 		if( newvalue.length() == 0 ) return new byte[0];
 		try {
-			return new sun.misc.BASE64Decoder().decodeBuffer(newvalue);
+			return com.altova.Base64.decode( newvalue);
 		}
 		catch ( java.io.IOException e ) {
 			return null;
