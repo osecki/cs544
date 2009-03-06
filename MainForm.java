@@ -238,7 +238,7 @@ public class MainForm extends JFrame implements ActionListener
 				CmdLib.CreateJoinCommand(channelName, nickname);
 				
 				// Create Get users command
-				CmdLib.CreateGetUsersCommand(channelName);
+				//CmdLib.CreateGetUsersCommand(channelName);
 				
 				// Change button statuses
 				this.btnJoin.setEnabled(false);
