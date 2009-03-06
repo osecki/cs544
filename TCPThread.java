@@ -91,7 +91,9 @@ public class TCPThread extends Thread
 	{
 		try 
 		{
-			this.sock.close();
+			if (this.sock != null)
+				this.sock.close();
+			
 			this.stop();
 		} 
 		catch (IOException e) 
