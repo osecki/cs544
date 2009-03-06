@@ -74,6 +74,9 @@ public class MainForm extends JFrame implements ActionListener
 	private JButton btnSocketConn = null;
 	private JButton btnSockDisconnect = null;
 	private JTextArea txtChannelDisplayName = null;
+	private JTextArea txtNewDesc = null;
+	private JButton btnNewDesc = null;
+	private JButton btnRefreshUsers = null;
 
 	public MainForm() 
 	{
@@ -112,6 +115,11 @@ public class MainForm extends JFrame implements ActionListener
 		
 		this.txtChannelDisplayName.setEditable(false);	//disable
 		this.txtDescription.setEditable(false);			//disable
+		
+		this.txtNewDesc.setEnabled(false);				//disable
+		this.btnNewDesc.setEnabled(false);				//disable
+		
+		this.btnRefreshUsers.setEnabled(false);			//disable
 	}
 	
 	// Method where events trigger
@@ -220,35 +228,8 @@ public class MainForm extends JFrame implements ActionListener
 		}
 		else if (event.getSource() == btnJoin)
 		{
-			if ( ((String)cboChannel.getSelectedItem()).equals("(Select One)") && ! this.txtChannel.getText().equals("") )
-			{
-				// Means a new channel is being created
-				channelName = this.txtChannel.getText();
-				
-				// Create join command
-				CmdLib.CreateJoinCommand(channelName, nickname);
-				
-				// Create Get users command
-				CmdLib.CreateGetUsersCommand(channelName);
-				
-				// Create New desc command
-				CmdLib.CreateNewDescCommand(channelName, this.txtChannel2.getText());
-				
-				// Change button statuses
-				this.btnJoin.setEnabled(false);
-				this.btnPart.setEnabled(true);
-				this.btnMute.setEnabled(true);
-				
-				// Update bottom boxes
-				this.txtChannelDisplayName.setText("Connected to ... " + channelName);
-				this.txtDescription.setText(this.txtChannel2.getText());
-				
-				// Created new one, so operator
-				operator = true;
-				this.btnKick.setEnabled(true);
-				this.btnBan.setEnabled(true);
-			}
-			else if ( ! ((String)cboChannel.getSelectedItem()).equals("(Select One)") )
+			// If something is selected in drop-down, ALWAYS go with that
+			if ( ! ((String)cboChannel.getSelectedItem()).equals("(New Channel)") )
 			{
 				// Otherwise grab from the drop-down menu
 				channelName = ((String)cboChannel.getSelectedItem());
@@ -263,11 +244,43 @@ public class MainForm extends JFrame implements ActionListener
 				this.btnJoin.setEnabled(false);
 				this.btnPart.setEnabled(true);
 				this.btnMute.setEnabled(true);
+				this.btnRefreshUsers.setEnabled(true);
 				
 				// Update bottom boxes
 				this.txtChannelDisplayName.setText("Connected to ... " + channelName);
 				//this.txtDescription.setText(this.txtChannel2.getText());
 				// TODO Set description here
+			}
+			else if ( ((String)cboChannel.getSelectedItem()).equals("(New Channel)") && ! this.txtChannel.getText().equals("") )
+			{
+				// Means a new channel is being created
+				channelName = this.txtChannel.getText();
+				
+				// Create join command
+				CmdLib.CreateJoinCommand(channelName, nickname);
+				
+				// Create Get users command
+				//CmdLib.CreateGetUsersCommand(channelName);
+				
+				// Create New desc command
+				//CmdLib.CreateNewDescCommand(channelName, this.txtChannel2.getText());
+				
+				// Change button statuses
+				this.btnJoin.setEnabled(false);
+				this.btnPart.setEnabled(true);
+				this.btnMute.setEnabled(true);
+				this.btnRefreshUsers.setEnabled(true);
+				
+				// Update bottom boxes
+				this.txtChannelDisplayName.setText("Connected to ... " + channelName);
+				this.txtDescription.setText(this.txtChannel2.getText());
+				
+				// Created new one, so operator
+				operator = true;
+				this.btnKick.setEnabled(true);
+				this.btnBan.setEnabled(true);
+				this.btnNewDesc.setEnabled(true);
+				this.txtNewDesc.setEnabled(true);
 			}
 			else
 			{
@@ -282,12 +295,15 @@ public class MainForm extends JFrame implements ActionListener
 			
 			this.btnJoin.setEnabled(true);
 			this.btnPart.setEnabled(false);
+			this.btnRefreshUsers.setEnabled(false);
 			
 			// Reset ops
 			operator = false;
 			this.btnKick.setEnabled(false);
 			this.btnBan.setEnabled(false);
 			this.btnMute.setEnabled(false);
+			this.btnNewDesc.setEnabled(false);
+			this.txtNewDesc.setEnabled(false);
 			
 			// Update bottom boxes
 			this.txtChannelDisplayName.setText("Not connected to any channel...");
@@ -335,6 +351,22 @@ public class MainForm extends JFrame implements ActionListener
         			    "No nickname selected", JOptionPane.WARNING_MESSAGE);
 			}
 		}
+		else if (event.getSource() == btnNewDesc)
+		{
+			if ( ! txtNewDesc.getText().equals("") )
+			{
+				CmdLib.CreateNewDescCommand(channelName, txtNewDesc.getText());
+			}
+			else
+			{
+				JOptionPane.showMessageDialog(getJFrame(), "Please enter a description before performing this action.",
+        			    "No description entered", JOptionPane.WARNING_MESSAGE);
+			}
+		}
+		else if (event.getSource() == btnRefreshUsers)
+		{
+				CmdLib.CreateGetUsersCommand(channelName);
+		}
 		else
 		{
 			//this is a menu item
@@ -367,7 +399,7 @@ public class MainForm extends JFrame implements ActionListener
 			for (int i = 0; i < respMsg.getChannelNames().size(); i++)
 				cboChannel.insertItemAt(respMsg.getChannelNames().elementAt(i), 0);
 			
-			cboChannel.insertItemAt("(Select One)", 0);
+			cboChannel.insertItemAt("(New Channel)", 0);
 			cboChannel.setSelectedIndex(0);
 		}
 		else if (respMsg.getCommand().equals("GetUsers"))
@@ -380,11 +412,15 @@ public class MainForm extends JFrame implements ActionListener
 			
 			listUsers.setModel(dlm);
 		}
-		else if ( respMsg.getStatusMsg().contains("joined") )
+		else if ( respMsg.getStatusMsg().contains("joined") ) // TODO
 		{
 			CmdLib.CreateGetUsersCommand(channelName);
 		}
-		else if ( respMsg.getStatusMsg().contains("connected") )
+		else if ( respMsg.getStatusMsg().contains("connected") ) // TODO
+		{
+			CmdLib.CreateGetChansCommand();
+		}
+		else if ( respMsg.getStatusMsg().contains("left") ) // TODO
 		{
 			CmdLib.CreateGetChansCommand();
 		}
@@ -664,7 +700,7 @@ public class MainForm extends JFrame implements ActionListener
 		if (cboChannel == null) {
 			cboChannel = new JComboBox();
 			cboChannel.setBounds(new Rectangle(83, 24, 176, 20));
-			cboChannel.addItem("(Select One)");
+			cboChannel.addItem("(New Channel)");
 		}
 		return cboChannel;
 	}
@@ -727,6 +763,9 @@ public class MainForm extends JFrame implements ActionListener
 			pnlChannelInfo.add(getBtnBan(), null);
 			pnlChannelInfo.add(getBtnMute(), null);
 			pnlChannelInfo.add(getTxtChannelDisplayName(), null);
+			pnlChannelInfo.add(getTxtNewDesc(), null);
+			pnlChannelInfo.add(getBtnNewDesc(), null);
+			pnlChannelInfo.add(getBtnRefreshUsers(), null);
 		}
 		return pnlChannelInfo;
 	}
@@ -735,7 +774,7 @@ public class MainForm extends JFrame implements ActionListener
 		if (pnlUsers == null) {
 			pnlUsers = new JScrollPane();
 			pnlUsers.setBorder(new TitledBorder("Users"));
-			pnlUsers.setBounds(new Rectangle(9, 24, 190, 193));
+			pnlUsers.setBounds(new Rectangle(9, 24, 190, 163));
 			pnlUsers.setViewportView(getListUsers());
 		}
 		return pnlUsers;
@@ -751,7 +790,7 @@ public class MainForm extends JFrame implements ActionListener
 	private JTextArea getTxtDescription() {
 		if (txtDescription == null) {
 			txtDescription = new JTextArea();
-			txtDescription.setBounds(new Rectangle(209, 88, 338, 88));
+			txtDescription.setBounds(new Rectangle(209, 88, 338, 48));
 			txtDescription.setLineWrap(true);
 			txtDescription.setText("(Description)");
 		}
@@ -840,5 +879,50 @@ public class MainForm extends JFrame implements ActionListener
 			txtChannelDisplayName.setText("Not connected to any channel...");
 		}
 		return txtChannelDisplayName;
+	}
+
+	/**
+	 * This method initializes txtNewChan	
+	 * 	
+	 * @return javax.swing.JTextArea	
+	 */
+	private JTextArea getTxtNewDesc() {
+		if (txtNewDesc == null) {
+			txtNewDesc = new JTextArea();
+			txtNewDesc.setBounds(new Rectangle(209, 163, 160, 20));
+			txtNewDesc.setLineWrap(true);
+			txtNewDesc.setText("");
+		}
+		return txtNewDesc;
+	}
+
+	/**
+	 * This method initializes btnNewDesc	
+	 * 	
+	 * @return javax.swing.JButton	
+	 */
+	private JButton getBtnNewDesc() {
+		if (btnNewDesc == null) {
+			btnNewDesc = new JButton();
+			btnNewDesc.setBounds(new Rectangle(388, 163, 160, 20));
+			btnNewDesc.setText("Change Description");
+			btnNewDesc.addActionListener(this);
+		}
+		return btnNewDesc;
+	}
+
+	/**
+	 * This method initializes btnRefreshUsers	
+	 * 	
+	 * @return javax.swing.JButton	
+	 */
+	private JButton getBtnRefreshUsers() {
+		if (btnRefreshUsers == null) {
+			btnRefreshUsers = new JButton();
+			btnRefreshUsers.setBounds(new Rectangle(33, 194, 140, 20));
+			btnRefreshUsers.setText("Refresh Users");
+			btnRefreshUsers.addActionListener(this);
+		}
+		return btnRefreshUsers;
 	}
 }  //  @jve:decl-index=0:visual-constraint="10,10"
