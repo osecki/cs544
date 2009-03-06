@@ -237,7 +237,7 @@ public class CmdLib
 	}
 	
 	// Method to create a join XML command
-	public static void CreateJoinCommand(String channelName, String nick)
+	public static void CreateJoinCommand(String channelName, String nick, String desc)
 	{
 		String xmlCmd = "";
 		
@@ -274,6 +274,12 @@ public class CmdLib
 			
 			// Add Name
 			channel.Name.append().setValue(channelName);
+			
+			// Add description if this is a new channel..... if it is not
+			//a new channel, i pass in an emtpy string
+			
+			if (!desc.equals(""))
+				channel.Desc.append().setValue(desc);
 			
 			//save XML to String
 			xmlCmd = doc.saveToString(false);

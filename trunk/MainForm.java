@@ -64,7 +64,7 @@ public class MainForm extends JFrame implements ActionListener
 	private JPanel pnlChannelInfo = null;
 	private JScrollPane pnlUsers = null;
 	private static JList listUsers = null;
-	private JTextArea txtDescription = null;
+	private static JTextArea txtDescription = null;
 	private JButton btnKick = null;
 	private JButton btnBan = null;
 	private JButton btnMute = null;
@@ -74,7 +74,7 @@ public class MainForm extends JFrame implements ActionListener
 	private JButton btnSocketConn = null;
 	private JButton btnSockDisconnect = null;
 	private JTextArea txtChannelDisplayName = null;
-	private JTextArea txtNewDesc = null;
+	private static JTextArea txtNewDesc = null;
 	private JButton btnNewDesc = null;
 	private JButton btnRefreshUsers = null;
 
@@ -235,7 +235,7 @@ public class MainForm extends JFrame implements ActionListener
 				channelName = ((String)cboChannel.getSelectedItem());
 				
 				// Create join command
-				CmdLib.CreateJoinCommand(channelName, nickname);
+				CmdLib.CreateJoinCommand(channelName, nickname, "");
 				
 				// Create Get users command
 				//CmdLib.CreateGetUsersCommand(channelName);
@@ -268,7 +268,7 @@ public class MainForm extends JFrame implements ActionListener
 				channelName = this.txtChannel.getText();
 				
 				// Create join command
-				CmdLib.CreateJoinCommand(channelName, nickname);
+				CmdLib.CreateJoinCommand(channelName, nickname, this.txtChannel2.getText());
 				
 				// Create Get users command
 				//CmdLib.CreateGetUsersCommand(channelName);
@@ -284,7 +284,7 @@ public class MainForm extends JFrame implements ActionListener
 				
 				// Update bottom boxes
 				this.txtChannelDisplayName.setText("Connected to ... " + channelName);
-				this.txtDescription.setText(this.txtChannel2.getText());
+				txtDescription.setText(this.txtChannel2.getText());
 				
 				// Created new one, so operator
 				operator = true;
@@ -392,7 +392,7 @@ public class MainForm extends JFrame implements ActionListener
 			else if (menuItem.getText() == "GetUsers")
 				CmdLib.CreateGetUsersCommand("java");
 			else if (menuItem.getText() == "Join")
-				CmdLib.CreateJoinCommand("java", "billNick");
+				CmdLib.CreateJoinCommand("java", "billNick", "");
 			else if (menuItem.getText() == "Part")
 				CmdLib.CreatePartCommand("java", "billNick");
 		}
@@ -434,6 +434,14 @@ public class MainForm extends JFrame implements ActionListener
 		else if ( respMsg.getStatusMsg().contains("left") ) // TODO
 		{
 			CmdLib.CreateGetChansCommand();
+		}
+		else if (respMsg.getCommand().equals("Join"))		//set description
+		{
+			txtDescription.setText(respMsg.getStatusMsg());
+		}
+		else if ((respMsg.getCommand().equals("NewDesc")) && (respMsg.getStatusCode() == 0))
+		{
+			txtDescription.setText(txtNewDesc.getText());
 		}
 		else // Not sure if more than these need to be singled out at the moment
 		{
