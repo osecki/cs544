@@ -253,6 +253,17 @@ public class MainForm extends JFrame implements ActionListener
 			}
 			else if ( ((String)cboChannel.getSelectedItem()).equals("(New Channel)") && ! this.txtChannel.getText().equals("") )
 			{
+				
+				// First check to see if there is one already named this
+//				boolean doesntExist = true;
+//				for (int i = 0; i < cboChannel.getItemCount(); i++)
+//				{
+//					if ( this.txtChannel.getText().equals(((String)cboChannel.getSelectedItem())))
+//						doesntExist = false;
+//				}
+//				
+//				if ( doesntExist )
+				
 				// Means a new channel is being created
 				channelName = this.txtChannel.getText();
 				
