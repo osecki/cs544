@@ -87,12 +87,13 @@ public class TCPThread extends Thread
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
 	public void Close()
 	{
 		try 
 		{
-			if (this.sock != null)
-				this.sock.close();
+			if (TCPThread.sock != null)
+				TCPThread.sock.close();
 			
 			this.stop();
 		} 
