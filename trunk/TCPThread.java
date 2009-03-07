@@ -15,20 +15,19 @@ public class TCPThread extends Thread
 	private int hostPort = 0;			//server port num
 	private static Socket sock = null;	//socket for TCP
 
-	
 	//Constructor
 	public TCPThread(String host, int port)
 	{
-		super();						//call base constructor
+		super();						// call base constructor
 		
-		hostAddr = host;				//save host address
-		hostPort = port;				//set host port
+		hostAddr = host;				// save host address
+		hostPort = port;				// set host port
 		
 		try 
 		{
-			//create socket and connect
+			// Create socket and connect
 			java.util.Random random = new java.util.Random();
-			int localPort = random.nextInt(8500)+1000;
+			int localPort = random.nextInt(8500) + 1000;
 
 			sock = new Socket(hostAddr, hostPort, InetAddress.getLocalHost(), localPort);
 		} 
@@ -38,15 +37,15 @@ public class TCPThread extends Thread
 		}
 	}
 
-	//Entry point for the execution of the thread
+	// Entry point for the execution of the thread
 	public void run()
 	{
 		byte[] buffer = new byte[1024];
 		
 		try
 		{
-			//loop forever to read from socket
-			while(true)
+			// Loop forever to read from socket
+			while (true)
 			{
 				if (sock.isConnected())
 				{
@@ -54,6 +53,7 @@ public class TCPThread extends Thread
 					int readLen = sock.getInputStream().read(buffer, 0, 1024);	//read socket
 					String incomingXML = new String(buffer);					//get string
 					incomingXML = incomingXML.substring(0, readLen);
+					System.out.println("-");
 					System.out.println("RECEIVED: " + incomingXML);
 					
 					CmdLib.ParseIncomingMessage(incomingXML);					//parse xml
@@ -70,7 +70,7 @@ public class TCPThread extends Thread
 	
 	public static void write(String xmlMsg)
 	{
-		//write data out the socket to the server
+		// Write data out the socket to the server
 		try 
 		{	
 			if (sock.isConnected())
@@ -79,6 +79,7 @@ public class TCPThread extends Thread
 				sock.getOutputStream().write(xmlMsg.getBytes(), 0, xmlMsg.getBytes().length);
 				sock.getOutputStream().flush();
 				System.out.println("SENDING: " + xmlMsg);
+				System.out.println("-");
 			}
 		} 
 		catch (IOException e) 
@@ -99,7 +100,7 @@ public class TCPThread extends Thread
 		} 
 		catch (IOException e) 
 		{
-		}
-		
+			System.out.println("Error: TCPThread::close - " + e.getMessage());
+		}		
 	}
 }
