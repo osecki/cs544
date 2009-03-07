@@ -24,7 +24,6 @@ import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.JComboBox;
-import javax.swing.JTextArea;
 import java.awt.event.*;
 import java.io.File;
 
@@ -53,7 +52,6 @@ public class MainForm extends JFrame implements ActionListener
 	private JPanel pnlChannels = null;
 	private JLabel lblChannel = null;
 	private static JComboBox cboChannel = null;
-	//private JButton btnRefreshChan = null;
 	private JLabel lblChanName = null;
 	private JLabel lblChanDesc = null;
 	private JTextField txtChannel = null;
@@ -64,7 +62,7 @@ public class MainForm extends JFrame implements ActionListener
 	private JPanel pnlChannelInfo = null;
 	private JScrollPane pnlUsers = null;
 	private static JList listUsers = null;
-	private static JTextArea txtDescription = null;
+	private static JTextField txtDescription = null;
 	private JButton btnKick = null;
 	private JButton btnBan = null;
 	private JButton btnMute = null;
@@ -73,10 +71,11 @@ public class MainForm extends JFrame implements ActionListener
 	private JPasswordField txtPass = null;
 	private JButton btnSocketConn = null;
 	private JButton btnSockDisconnect = null;
-	private JTextArea txtChannelDisplayName = null;
-	private static JTextArea txtNewDesc = null;
+	private JTextField txtChannelDisplayName = null;
+	private static JTextField txtNewDesc = null;
 	private JButton btnNewDesc = null;
 	private JButton btnRefreshUsers = null;
+	private JButton btnRefreshChannels = null;
 
 	public MainForm() 
 	{
@@ -102,8 +101,7 @@ public class MainForm extends JFrame implements ActionListener
 		this.btnConnect.setEnabled(false);		//disable connect button
 		this.btnDisconnect.setEnabled(false);	//disable disconnect button
 		
-		this.cboChannel.setEnabled(false);		//disable channel drop down
-		//this.btnRefreshChan.setEnabled(false);  //disable refresh channel button
+		MainForm.cboChannel.setEnabled(false);		//disable channel drop down
 		this.txtChannel.setEnabled(false);		//disable channel textbox
 		this.txtChannel2.setEnabled(false); 	//disable channel textbox 2
 		this.btnJoin.setEnabled(false);			//disable join button
@@ -114,15 +112,17 @@ public class MainForm extends JFrame implements ActionListener
 		this.btnMute.setEnabled(false);		//disable mute button
 		
 		this.txtChannelDisplayName.setEditable(false);	//disable
-		this.txtDescription.setEditable(false);			//disable
+		MainForm.txtDescription.setEditable(false);		//disable
 		
-		this.txtNewDesc.setEnabled(false);				//disable
+		MainForm.txtNewDesc.setEnabled(false);			//disable
 		this.btnNewDesc.setEnabled(false);				//disable
 		
 		this.btnRefreshUsers.setEnabled(false);			//disable
+		this.btnRefreshChannels.setEnabled(false);		//disable
 	}
 	
 	// Method where events trigger
+	@SuppressWarnings("deprecation")
 	public void actionPerformed(ActionEvent event) 
 	{			
 		if (event.getSource() == btnSocketConn)
@@ -199,7 +199,7 @@ public class MainForm extends JFrame implements ActionListener
 				btnDisconnect.setEnabled(true);
 				btnJoin.setEnabled(true);
 				cboChannel.setEnabled(true);
-				//btnRefresh
+				btnRefreshChannels.setEnabled(true);
 				txtChannel.setEnabled(true);
 				txtChannel2.setEnabled(true);
 				btnSockDisconnect.setEnabled(false);
@@ -218,6 +218,7 @@ public class MainForm extends JFrame implements ActionListener
 			btnJoin.setEnabled(false);
 			cboChannel.setEnabled(false);
 			txtChannel.setEnabled(false);
+			btnRefreshChannels.setEnabled(false);
 			
 			// Create and send disconnect command
 			CmdLib.CreateDisconnCommand(this.txtNick.getText());
@@ -237,9 +238,6 @@ public class MainForm extends JFrame implements ActionListener
 				// Create join command
 				CmdLib.CreateJoinCommand(channelName, nickname, "");
 				
-				// Create Get users command
-				//CmdLib.CreateGetUsersCommand(channelName);
-				
 				// Change button statuses
 				this.btnJoin.setEnabled(false);
 				this.btnPart.setEnabled(true);
@@ -248,50 +246,49 @@ public class MainForm extends JFrame implements ActionListener
 				
 				// Update bottom boxes
 				this.txtChannelDisplayName.setText("Connected to ... " + channelName);
-				//this.txtDescription.setText(this.txtChannel2.getText());
-				// TODO Set description here
+				// Description is set in the server response handler method
 			}
 			else if ( ((String)cboChannel.getSelectedItem()).equals("(New Channel)") && ! this.txtChannel.getText().equals("") )
 			{
-				
 				// First check to see if there is one already named this
-//				boolean doesntExist = true;
-//				for (int i = 0; i < cboChannel.getItemCount(); i++)
-//				{
-//					if ( this.txtChannel.getText().equals(((String)cboChannel.getSelectedItem())))
-//						doesntExist = false;
-//				}
-//				
-//				if ( doesntExist )
+				boolean doesntExist = true;
+				for (int i = 0; i < cboChannel.getItemCount(); i++)
+				{
+					System.out.println(this.txtChannel.getText() + "|" + (String)cboChannel.getSelectedItem());
+					if ( this.txtChannel.getText().equals(((String)cboChannel.getItemAt(i))))
+						doesntExist = false;
+				}
 				
-				// Means a new channel is being created
-				channelName = this.txtChannel.getText();
-				
-				// Create join command
-				CmdLib.CreateJoinCommand(channelName, nickname, this.txtChannel2.getText());
-				
-				// Create Get users command
-				//CmdLib.CreateGetUsersCommand(channelName);
-				
-				// Create New desc command
-				//CmdLib.CreateNewDescCommand(channelName, this.txtChannel2.getText());
-				
-				// Change button statuses
-				this.btnJoin.setEnabled(false);
-				this.btnPart.setEnabled(true);
-				this.btnMute.setEnabled(true);
-				this.btnRefreshUsers.setEnabled(true);
-				
-				// Update bottom boxes
-				this.txtChannelDisplayName.setText("Connected to ... " + channelName);
-				txtDescription.setText(this.txtChannel2.getText());
-				
-				// Created new one, so operator
-				operator = true;
-				this.btnKick.setEnabled(true);
-				this.btnBan.setEnabled(true);
-				this.btnNewDesc.setEnabled(true);
-				this.txtNewDesc.setEnabled(true);
+				if ( doesntExist ) // Mean it is a unique channel, so create it
+				{
+					// Means a new channel is being created
+					channelName = this.txtChannel.getText();
+					
+					// Create join command
+					CmdLib.CreateJoinCommand(channelName, nickname, this.txtChannel2.getText());
+					
+					// Change button statuses
+					this.btnJoin.setEnabled(false);
+					this.btnPart.setEnabled(true);
+					this.btnMute.setEnabled(true);
+					this.btnRefreshUsers.setEnabled(true);
+					
+					// Update bottom boxes
+					this.txtChannelDisplayName.setText("Connected to ... " + channelName);
+					txtDescription.setText(this.txtChannel2.getText());
+					
+					// Created new one, so operator
+					operator = true;
+					this.btnKick.setEnabled(true);
+					this.btnBan.setEnabled(true);
+					this.btnNewDesc.setEnabled(true);
+					MainForm.txtNewDesc.setEnabled(true);
+				}
+				else
+				{
+					JOptionPane.showMessageDialog(getJFrame(), "The channel name you have entered already exists, please try again.",
+	        			    "Invalid Input Error", JOptionPane.WARNING_MESSAGE);
+				}
 			}
 			else
 			{
@@ -314,16 +311,14 @@ public class MainForm extends JFrame implements ActionListener
 			this.btnBan.setEnabled(false);
 			this.btnMute.setEnabled(false);
 			this.btnNewDesc.setEnabled(false);
-			this.txtNewDesc.setEnabled(false);
+			MainForm.txtNewDesc.setEnabled(false);
 			
 			// Update bottom boxes
 			this.txtChannelDisplayName.setText("Not connected to any channel...");
-			this.txtDescription.setText("(Description)");
+			MainForm.txtDescription.setText("(Description)");
 		}
 		else if (event.getSource() == btnKick)
 		{
-			//System.out.println("TEST:" + listUsers.getSelectedIndex());
-			
 			if ( operator && listUsers.getSelectedIndex() != -1 )
 			{
 				CmdLib.CreateKickCommand(channelName, (String)listUsers.getSelectedValue());
@@ -336,8 +331,6 @@ public class MainForm extends JFrame implements ActionListener
 		}
 		else if (event.getSource() == btnBan)
 		{
-			//System.out.println("TEST:" + listUsers.getSelectedIndex());
-			
 			if ( operator && listUsers.getSelectedIndex() != -1 )
 			{
 				CmdLib.CreateBanCommand(channelName, (String)listUsers.getSelectedValue());
@@ -350,8 +343,6 @@ public class MainForm extends JFrame implements ActionListener
 		}
 		else if (event.getSource() == btnMute)
 		{
-			//System.out.println("TEST:" + listUsers.getSelectedIndex());
-			
 			if ( listUsers.getSelectedIndex() != -1 )
 			{
 				CmdLib.CreateMuteCommand(channelName, (String)listUsers.getSelectedValue());
@@ -377,6 +368,10 @@ public class MainForm extends JFrame implements ActionListener
 		else if (event.getSource() == btnRefreshUsers)
 		{
 				CmdLib.CreateGetUsersCommand(channelName);
+		}
+		else if (event.getSource() == btnRefreshChannels)
+		{
+				CmdLib.CreateGetChansCommand();
 		}
 		else
 		{
@@ -416,36 +411,29 @@ public class MainForm extends JFrame implements ActionListener
 		else if (respMsg.getCommand().equals("GetUsers"))
 		{
 			DefaultListModel dlm = new DefaultListModel();
-			//dlm.addElement("TestName");
 			
 			for (int i = 0; i < respMsg.getUserNicks().size(); i++)
 				dlm.addElement(respMsg.getUserNicks().elementAt(i));
 			
 			listUsers.setModel(dlm);
 		}
-		else if ( respMsg.getStatusMsg().contains("joined") ) // TODO
+		else if ( respMsg.getCommand().equals("Conn") )
 		{
+			CmdLib.CreateGetChansCommand();
+		}
+		else if ( respMsg.getCommand().equals("Part") )
+		{
+			CmdLib.CreateGetChansCommand();
+		}
+		else if (respMsg.getCommand().equals("Join"))
+		{
+			// Set description and issue getusers
 			CmdLib.CreateGetUsersCommand(channelName);
-		}
-		else if ( respMsg.getStatusMsg().contains("connected") ) // TODO
-		{
-			CmdLib.CreateGetChansCommand();
-		}
-		else if ( respMsg.getStatusMsg().contains("left") ) // TODO
-		{
-			CmdLib.CreateGetChansCommand();
-		}
-		else if (respMsg.getCommand().equals("Join"))		//set description
-		{
 			txtDescription.setText(respMsg.getStatusMsg());
 		}
 		else if ((respMsg.getCommand().equals("NewDesc")) && (respMsg.getStatusCode() == 0))
 		{
 			txtDescription.setText(txtNewDesc.getText());
-		}
-		else // Not sure if more than these need to be singled out at the moment
-		{
-			// TODO
 		}
 	}
 
@@ -482,21 +470,6 @@ public class MainForm extends JFrame implements ActionListener
 		fileMenu.add(fileMenuItem1);							//add menu items
 		fileMenu.add(fileMenuItem2);							//add menu items
 		menuBar.add(fileMenu);									//add file menu
-		
-		//Add Connection menu item
-//		JMenu connMenu = new JMenu("Connection");  	 		 	//create connection item
-//		JMenuItem connMenuItem1 = new JMenuItem("Connect");	    //create connect sub item
-//		JMenuItem connMenuItem2 = new JMenuItem("Disconnect");  //create disconnect sub item
-//		connMenu.add(connMenuItem1);							//add menu items
-//		connMenu.add(connMenuItem2);							//add menu items
-//		menuBar.add(connMenu);									//add file menu
-		
-		//Add Channels menu item
-//		JMenu channelsMenu = new JMenu("Channels");
-//		JMenuItem channelsMenuItem1 = new JMenuItem("Join");    //list sub item
-//		JMenuItem channelsMenuItem2 = new JMenuItem("Part");    //list sub item
-//		channelsMenu.add(channelsMenuItem1);
-//		menuBar.add(channelsMenu);
 
 		//Add Help menu item
 		JMenu helpMenu = new JMenu("Help");
@@ -583,7 +556,6 @@ public class MainForm extends JFrame implements ActionListener
 			}
         });
 	}
-
 
 	private JPanel getPnlConnection() {
 		if (pnlConnection == null) {
@@ -711,6 +683,7 @@ public class MainForm extends JFrame implements ActionListener
 			pnlChannels.add(getTxtChannel2(), null);
 			pnlChannels.add(getBtnJoin(), null);
 			pnlChannels.add(getBtnPart(), null);
+			pnlChannels.add(getBtnRefreshChannels(), null);
 		}
 		return pnlChannels;
 	}
@@ -806,11 +779,11 @@ public class MainForm extends JFrame implements ActionListener
 		return listUsers;
 	}
 
-	private JTextArea getTxtDescription() {
+	private JTextField getTxtDescription() {
 		if (txtDescription == null) {
-			txtDescription = new JTextArea();
+			txtDescription = new JTextField();
 			txtDescription.setBounds(new Rectangle(209, 88, 338, 48));
-			txtDescription.setLineWrap(true);
+			//txtDescription.setLineWrap(true);
 			txtDescription.setText("(Description)");
 		}
 		return txtDescription;
@@ -890,11 +863,10 @@ public class MainForm extends JFrame implements ActionListener
 	 * 	
 	 * @return javax.swing.JTextArea	
 	 */
-	private JTextArea getTxtChannelDisplayName() {
+	private JTextField getTxtChannelDisplayName() {
 		if (txtChannelDisplayName == null) {
-			txtChannelDisplayName = new JTextArea();
+			txtChannelDisplayName = new JTextField();
 			txtChannelDisplayName.setBounds(new Rectangle(209, 29, 338, 48));
-			txtChannelDisplayName.setLineWrap(true);
 			txtChannelDisplayName.setText("Not connected to any channel...");
 		}
 		return txtChannelDisplayName;
@@ -905,11 +877,10 @@ public class MainForm extends JFrame implements ActionListener
 	 * 	
 	 * @return javax.swing.JTextArea	
 	 */
-	private JTextArea getTxtNewDesc() {
+	private JTextField getTxtNewDesc() {
 		if (txtNewDesc == null) {
-			txtNewDesc = new JTextArea();
+			txtNewDesc = new JTextField();
 			txtNewDesc.setBounds(new Rectangle(209, 163, 160, 20));
-			txtNewDesc.setLineWrap(true);
 			txtNewDesc.setText("");
 		}
 		return txtNewDesc;
@@ -943,5 +914,20 @@ public class MainForm extends JFrame implements ActionListener
 			btnRefreshUsers.addActionListener(this);
 		}
 		return btnRefreshUsers;
+	}
+
+	/**
+	 * This method initializes btnRefreshChannels	
+	 * 	
+	 * @return javax.swing.JButton	
+	 */
+	private JButton getBtnRefreshChannels() {
+		if (btnRefreshChannels == null) {
+			btnRefreshChannels = new JButton();
+			btnRefreshChannels.setBounds(new Rectangle(101, 53, 140, 20));
+			btnRefreshChannels.setText("Refresh Channels");
+			btnRefreshChannels.addActionListener(this);
+		}
+		return btnRefreshChannels;
 	}
 }  //  @jve:decl-index=0:visual-constraint="10,10"
