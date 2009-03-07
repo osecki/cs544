@@ -12,7 +12,6 @@ import javax.swing.JFrame;
 import java.awt.Rectangle;
 import java.util.regex.*;
 import javax.swing.DefaultListModel;
-import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JMenuBar;
@@ -25,7 +24,6 @@ import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.JComboBox;
 import java.awt.event.*;
-import java.io.File;
 
 public class MainForm extends JFrame implements ActionListener
 {
@@ -81,7 +79,7 @@ public class MainForm extends JFrame implements ActionListener
 	{
 		super();
 		initialize();
-		
+
 		// Add a window listener for close button
 		addWindowListener(new WindowAdapter()
 		{
@@ -90,37 +88,37 @@ public class MainForm extends JFrame implements ActionListener
 				System.exit(0);
 			}
 		});
-		
+
 		CreateMenu();						//create application menu
 		InitGUI();							//initialize GUI
 	}
-	
+
 	private void InitGUI()
 	{
 		this.btnSockDisconnect.setEnabled(false); //disable socket disconnect button
 		this.btnConnect.setEnabled(false);		//disable connect button
 		this.btnDisconnect.setEnabled(false);	//disable disconnect button
-		
+
 		MainForm.cboChannel.setEnabled(false);		//disable channel drop down
 		this.txtChannel.setEnabled(false);		//disable channel textbox
 		this.txtChannel2.setEnabled(false); 	//disable channel textbox 2
 		this.btnJoin.setEnabled(false);			//disable join button
 		this.btnPart.setEnabled(false);			//disable part button
-		
+
 		this.btnBan.setEnabled(false);		//disable ban button
 		this.btnKick.setEnabled(false);		//disable kick button
 		this.btnMute.setEnabled(false);		//disable mute button
-		
+
 		this.txtChannelDisplayName.setEditable(false);	//disable
 		MainForm.txtDescription.setEditable(false);		//disable
-		
+
 		MainForm.txtNewDesc.setEnabled(false);			//disable
 		this.btnNewDesc.setEnabled(false);				//disable
-		
+
 		this.btnRefreshUsers.setEnabled(false);			//disable
 		this.btnRefreshChannels.setEnabled(false);		//disable
 	}
-	
+
 	// Method where events trigger
 	@SuppressWarnings("deprecation")
 	public void actionPerformed(ActionEvent event) 
@@ -137,17 +135,17 @@ public class MainForm extends JFrame implements ActionListener
 				// Setup TCP thread and sockets due to the Connect command
 				String hostIP = this.txtConnIP.getText();
 				int hostTCPPort = Integer.parseInt(this.txtConnPortTCP.getText());
-		        tcpThread = new TCPThread(hostIP, hostTCPPort);
-		        tcpThread.start();
-		        
-		        // Change button statuses
-		        btnSocketConn.setEnabled(false);
-		        btnConnect.setEnabled(true);
+				tcpThread = new TCPThread(hostIP, hostTCPPort);
+				tcpThread.start();
+
+				// Change button statuses
+				btnSocketConn.setEnabled(false);
+				btnConnect.setEnabled(true);
 			}
 			else
 			{
 				JOptionPane.showMessageDialog(getJFrame(), "Please enter a valid IP address and TCP port number.",
-        			    "Invalid Input Error", JOptionPane.WARNING_MESSAGE);
+						"Invalid Input Error", JOptionPane.WARNING_MESSAGE);
 			}
 		}
 		else if (event.getSource() == this.btnSockDisconnect)
@@ -157,9 +155,9 @@ public class MainForm extends JFrame implements ActionListener
 			this.tcpThread.Close();
 			this.udpReceiver.close();
 			this.udpTransmitter.stopTx();
-			
+
 			this.udpSetup = false;
-			
+
 			// Change button statuses
 			btnSockDisconnect.setEnabled(false);
 			btnConnect.setEnabled(false);
@@ -177,23 +175,23 @@ public class MainForm extends JFrame implements ActionListener
 				if ( ! this.udpSetup )
 				{
 					this.udpSetup = true;
-					
-			        // Setup UDP receiver thread
-			        String[] argv = new String[1];
-			        argv[0] = this.txtConnIP.getText() + "/" + this.txtConnPortUDP.getText();
-			        udpReceiver = new UDPReceiver(argv);
-			        udpReceiver.start();
-		       
-			        // Setup UDP transmitter thread
-			    	udpTransmitter = new UDPTransmitter(new MediaLocator("javasound://44100"),
-			    					     this.txtConnIP.getText(), this.txtConnPortUDP.getText(), null);    
-			        udpTransmitter.start();
+
+					// Setup UDP receiver thread
+					String[] argv = new String[1];
+					argv[0] = this.txtConnIP.getText() + "/" + this.txtConnPortUDP.getText();
+					udpReceiver = new UDPReceiver(argv);
+					udpReceiver.start();
+
+					// Setup UDP transmitter thread
+					udpTransmitter = new UDPTransmitter(new MediaLocator("javasound://44100"),
+							this.txtConnIP.getText(), this.txtConnPortUDP.getText(), null);    
+					udpTransmitter.start();
 				}
-	       
-		        // Create and send connection command
+
+				// Create and send connection command
 				nickname = this.txtNick.getText();
 				CmdLib.CreateConnCommand(nickname, "", this.txtName.getText(), this.txtPass.getText());
-				
+
 				//Change button status
 				btnConnect.setEnabled(false);
 				btnDisconnect.setEnabled(true);
@@ -207,7 +205,7 @@ public class MainForm extends JFrame implements ActionListener
 			else
 			{
 				JOptionPane.showMessageDialog(getJFrame(), "Please enter a valid IP, port numbers, and user information.",
-        			    "Invalid Input Error", JOptionPane.WARNING_MESSAGE);
+						"Invalid Input Error", JOptionPane.WARNING_MESSAGE);
 			}
 		}
 		else if (event.getSource() == btnDisconnect)
@@ -219,10 +217,10 @@ public class MainForm extends JFrame implements ActionListener
 			cboChannel.setEnabled(false);
 			txtChannel.setEnabled(false);
 			btnRefreshChannels.setEnabled(false);
-			
+
 			// Create and send disconnect command
 			CmdLib.CreateDisconnCommand(this.txtNick.getText());
-			
+
 			// Change button statuses
 			btnDisconnect.setEnabled(false);
 			btnSockDisconnect.setEnabled(true);
@@ -234,16 +232,16 @@ public class MainForm extends JFrame implements ActionListener
 			{
 				// Otherwise grab from the drop-down menu
 				channelName = ((String)cboChannel.getSelectedItem());
-				
+
 				// Create join command
 				CmdLib.CreateJoinCommand(channelName, nickname, "");
-				
+
 				// Change button statuses
 				this.btnJoin.setEnabled(false);
 				this.btnPart.setEnabled(true);
 				this.btnMute.setEnabled(true);
 				this.btnRefreshUsers.setEnabled(true);
-				
+
 				// Update bottom boxes
 				this.txtChannelDisplayName.setText("Connected to ... " + channelName);
 				// Description is set in the server response handler method
@@ -254,29 +252,28 @@ public class MainForm extends JFrame implements ActionListener
 				boolean doesntExist = true;
 				for (int i = 0; i < cboChannel.getItemCount(); i++)
 				{
-					System.out.println(this.txtChannel.getText() + "|" + (String)cboChannel.getSelectedItem());
 					if ( this.txtChannel.getText().equals(((String)cboChannel.getItemAt(i))))
 						doesntExist = false;
 				}
-				
+
 				if ( doesntExist ) // Mean it is a unique channel, so create it
 				{
 					// Means a new channel is being created
 					channelName = this.txtChannel.getText();
-					
+
 					// Create join command
 					CmdLib.CreateJoinCommand(channelName, nickname, this.txtChannel2.getText());
-					
+
 					// Change button statuses
 					this.btnJoin.setEnabled(false);
 					this.btnPart.setEnabled(true);
 					this.btnMute.setEnabled(true);
 					this.btnRefreshUsers.setEnabled(true);
-					
+
 					// Update bottom boxes
 					this.txtChannelDisplayName.setText("Connected to ... " + channelName);
 					txtDescription.setText(this.txtChannel2.getText());
-					
+
 					// Created new one, so operator
 					operator = true;
 					this.btnKick.setEnabled(true);
@@ -287,24 +284,24 @@ public class MainForm extends JFrame implements ActionListener
 				else
 				{
 					JOptionPane.showMessageDialog(getJFrame(), "The channel name you have entered already exists, please try again.",
-	        			    "Invalid Input Error", JOptionPane.WARNING_MESSAGE);
+							"Invalid Input Error", JOptionPane.WARNING_MESSAGE);
 				}
 			}
 			else
 			{
 				JOptionPane.showMessageDialog(getJFrame(), "Please enter a channel name or select one from the menu.",
-        			    "Invalid Input Error", JOptionPane.WARNING_MESSAGE);
+						"Invalid Input Error", JOptionPane.WARNING_MESSAGE);
 			}
 		}
 		else if (event.getSource() == btnPart)
 		{
 			// Create part command
 			CmdLib.CreatePartCommand(channelName, nickname);
-			
+
 			this.btnJoin.setEnabled(true);
 			this.btnPart.setEnabled(false);
 			this.btnRefreshUsers.setEnabled(false);
-			
+
 			// Reset ops
 			operator = false;
 			this.btnKick.setEnabled(false);
@@ -312,7 +309,7 @@ public class MainForm extends JFrame implements ActionListener
 			this.btnMute.setEnabled(false);
 			this.btnNewDesc.setEnabled(false);
 			MainForm.txtNewDesc.setEnabled(false);
-			
+
 			// Update bottom boxes
 			this.txtChannelDisplayName.setText("Not connected to any channel...");
 			MainForm.txtDescription.setText("(Description)");
@@ -326,7 +323,7 @@ public class MainForm extends JFrame implements ActionListener
 			else
 			{
 				JOptionPane.showMessageDialog(getJFrame(), "Please select a nickname before performing this action.",
-        			    "No nickname selected", JOptionPane.WARNING_MESSAGE);
+						"No nickname selected", JOptionPane.WARNING_MESSAGE);
 			}
 		}
 		else if (event.getSource() == btnBan)
@@ -338,7 +335,7 @@ public class MainForm extends JFrame implements ActionListener
 			else
 			{
 				JOptionPane.showMessageDialog(getJFrame(), "Please select a nickname before performing this action.",
-        			    "No nickname selected", JOptionPane.WARNING_MESSAGE);
+						"No nickname selected", JOptionPane.WARNING_MESSAGE);
 			}
 		}
 		else if (event.getSource() == btnMute)
@@ -350,7 +347,7 @@ public class MainForm extends JFrame implements ActionListener
 			else
 			{
 				JOptionPane.showMessageDialog(getJFrame(), "Please select a nickname before performing this action.",
-        			    "No nickname selected", JOptionPane.WARNING_MESSAGE);
+						"No nickname selected", JOptionPane.WARNING_MESSAGE);
 			}
 		}
 		else if (event.getSource() == btnNewDesc)
@@ -362,59 +359,59 @@ public class MainForm extends JFrame implements ActionListener
 			else
 			{
 				JOptionPane.showMessageDialog(getJFrame(), "Please enter a description before performing this action.",
-        			    "No description entered", JOptionPane.WARNING_MESSAGE);
+						"No description entered", JOptionPane.WARNING_MESSAGE);
 			}
 		}
 		else if (event.getSource() == btnRefreshUsers)
 		{
-				CmdLib.CreateGetUsersCommand(channelName);
+			CmdLib.CreateGetUsersCommand(channelName);
 		}
 		else if (event.getSource() == btnRefreshChannels)
 		{
-				CmdLib.CreateGetChansCommand();
+			CmdLib.CreateGetChansCommand();
 		}
 		else
 		{
-			//this is a menu item
-			JMenuItem menuItem = (JMenuItem)event.getSource();
-
-			if (menuItem.getText() == "Connect")
-				CmdLib.CreateConnCommand("billNick", "127.0.0.1", "bill", "abcd");
-			else if (menuItem.getText() == "Disconnect")
-				CmdLib.CreateDisconnCommand("billNick");
-			else if (menuItem.getText() == "GetChans")
-				CmdLib.CreateGetChansCommand();
-			else if (menuItem.getText() == "GetUsers")
-				CmdLib.CreateGetUsersCommand("java");
-			else if (menuItem.getText() == "Join")
-				CmdLib.CreateJoinCommand("java", "billNick", "");
-			else if (menuItem.getText() == "Part")
-				CmdLib.CreatePartCommand("java", "billNick");
+			//			//this is a menu item
+			//			JMenuItem menuItem = (JMenuItem)event.getSource();
+			//
+			//			if (menuItem.getText() == "Connect")
+			//				CmdLib.CreateConnCommand("billNick", "127.0.0.1", "bill", "abcd");
+			//			else if (menuItem.getText() == "Disconnect")
+			//				CmdLib.CreateDisconnCommand("billNick");
+			//			else if (menuItem.getText() == "GetChans")
+			//				CmdLib.CreateGetChansCommand();
+			//			else if (menuItem.getText() == "GetUsers")
+			//				CmdLib.CreateGetUsersCommand("java");
+			//			else if (menuItem.getText() == "Join")
+			//				CmdLib.CreateJoinCommand("java", "billNick", "");
+			//			else if (menuItem.getText() == "Part")
+			//				CmdLib.CreatePartCommand("java", "billNick");
 		}
 	}	
-	
+
 	public static void UpdateGUI(ResponseMessage respMsg)
 	{
 		// Takes in a response message and updates the GUI accordingly
-		
+
 		if (respMsg.getCommand().equals("GetChans"))
 		{
 			// Re-creates the items in the channels drop-down menu
 			cboChannel.removeAllItems();
-			
+
 			for (int i = 0; i < respMsg.getChannelNames().size(); i++)
 				cboChannel.insertItemAt(respMsg.getChannelNames().elementAt(i), 0);
-			
+
 			cboChannel.insertItemAt("(New Channel)", 0);
 			cboChannel.setSelectedIndex(0);
 		}
 		else if (respMsg.getCommand().equals("GetUsers"))
 		{
 			DefaultListModel dlm = new DefaultListModel();
-			
+
 			for (int i = 0; i < respMsg.getUserNicks().size(); i++)
 				dlm.addElement(respMsg.getUserNicks().elementAt(i));
-			
+
 			listUsers.setModel(dlm);
 		}
 		else if ( respMsg.getCommand().equals("Conn") )
@@ -442,7 +439,7 @@ public class MainForm extends JFrame implements ActionListener
 		this.setTitle("Voice IRC");
 		this.setBounds(new Rectangle(0, 0, 595, 565));
 	}
-	
+
 	private JFrame getJFrame ()
 	{
 		return this;
@@ -465,9 +462,9 @@ public class MainForm extends JFrame implements ActionListener
 
 		//Add File menu item
 		JMenu fileMenu = new JMenu("File");  	 		 	    //create file item
-		JMenuItem fileMenuItem1 = new JMenuItem("Open");	    //create open sub item
+		//JMenuItem fileMenuItem1 = new JMenuItem("Open");	    //create open sub item
 		JMenuItem fileMenuItem2 = new JMenuItem("Quit");  		//create quit sub item
-		fileMenu.add(fileMenuItem1);							//add menu items
+		//fileMenu.add(fileMenuItem1);							//add menu items
 		fileMenu.add(fileMenuItem2);							//add menu items
 		menuBar.add(fileMenu);									//add file menu
 
@@ -478,83 +475,83 @@ public class MainForm extends JFrame implements ActionListener
 		helpMenu.add(helpMenuItem1);
 		helpMenu.add(helpMenuItem2);
 		menuBar.add(helpMenu);	
-		
+
 		//Add Unit Test menu item
-		JMenu testMenu = new JMenu("Unit Test");
+		//JMenu testMenu = new JMenu("Unit Test");
 		//JMenuItem testMenuItem1 = new JMenuItem("Connect");  	//list sub item		
 		//JMenuItem testMenuItem2 = new JMenuItem("Disconnect"); 	//list sub item
-		JMenuItem testMenuItem3 = new JMenuItem("GetChans"); 	//list sub item
-		JMenuItem testMenuItem4 = new JMenuItem("GetUsers"); 	//list sub item
+		//JMenuItem testMenuItem3 = new JMenuItem("GetChans"); 	//list sub item
+		//JMenuItem testMenuItem4 = new JMenuItem("GetUsers"); 	//list sub item
 		//JMenuItem testMenuItem5 = new JMenuItem("Join");	 	//list sub item
 		//JMenuItem testMenuItem6 = new JMenuItem("Part");	 	//list sub item
 		//testMenu.add(testMenuItem1);
 		//testMenu.add(testMenuItem2);
-		testMenu.add(testMenuItem3);
-		testMenu.add(testMenuItem4);
+		//testMenu.add(testMenuItem3);
+		//testMenu.add(testMenuItem4);
 		//testMenu.add(testMenuItem5);
 		//testMenu.add(testMenuItem6);
-		menuBar.add(testMenu);
-		
+		//menuBar.add(testMenu);
+
 		//Add action events to test menu items
 		//testMenuItem1.addActionListener(this);
 		//testMenuItem2.addActionListener(this);
-		testMenuItem3.addActionListener(this);
-		testMenuItem4.addActionListener(this);
+		//testMenuItem3.addActionListener(this);
+		//testMenuItem4.addActionListener(this);
 		//testMenuItem5.addActionListener(this);
 		//testMenuItem6.addActionListener(this);
-		
-		this.setJMenuBar(menuBar);								//add the menu bar to the frame
-		
-		// ActionListener for loadItem
-		fileMenuItem1.addActionListener(new ActionListener () 
-        {
-        	public void actionPerformed(ActionEvent arg0) 
-			{
-        		final JFileChooser fc = new JFileChooser();
-        		int returnVal = fc.showOpenDialog(getJFrame());
 
-                if (returnVal == JFileChooser.APPROVE_OPTION)
-                {
-                    File file = fc.getSelectedFile();
-                    
-                    // IMPLEMENT WHAT TO DO WITH FILE HERE
-                    System.out.println(file.getAbsolutePath());
-                } 
-			}
-        });
-		
+		this.setJMenuBar(menuBar);								//add the menu bar to the frame
+
+		// ActionListener for loadItem
+		//		fileMenuItem1.addActionListener(new ActionListener () 
+		//        {
+		//        	public void actionPerformed(ActionEvent arg0) 
+		//			{
+		//        		final JFileChooser fc = new JFileChooser();
+		//        		int returnVal = fc.showOpenDialog(getJFrame());
+		//
+		//                if (returnVal == JFileChooser.APPROVE_OPTION)
+		//                {
+		//                    File file = fc.getSelectedFile();
+		//                    
+		//                    // IMPLEMENT WHAT TO DO WITH FILE HERE
+		//                    System.out.println(file.getAbsolutePath());
+		//                } 
+		//			}
+		//        });
+
 		// ActionListener for exitItem
 		fileMenuItem2.addActionListener(new ActionListener () 
-        {
-        	public void actionPerformed(ActionEvent arg0) 
+		{
+			public void actionPerformed(ActionEvent arg0) 
 			{
-        		System.exit(0);
+				System.exit(0);
 			}
-        });
-		
+		});
+
 		// Create the About and help panel
 		final JFrame aboutPanel = new AboutPanel ();
 		final JFrame tutorialPanel = new TutorialPanel ();
-		
+
 		// ActionListener for tutorialItem
 		helpMenuItem1.addActionListener(new ActionListener () 
-        {
-        	public void actionPerformed(ActionEvent arg0) 
+		{
+			public void actionPerformed(ActionEvent arg0) 
 			{
-        		tutorialPanel.pack ();
-        		tutorialPanel.setVisible (true);
+				tutorialPanel.pack ();
+				tutorialPanel.setVisible (true);
 			}
-        });
-        
-        // ActionListener for aboutItem
+		});
+
+		// ActionListener for aboutItem
 		helpMenuItem2.addActionListener(new ActionListener () 
-        {
-        	public void actionPerformed(ActionEvent arg0) 
+		{
+			public void actionPerformed(ActionEvent arg0) 
 			{
-        		aboutPanel.pack ();
-        		aboutPanel.setVisible (true);
+				aboutPanel.pack ();
+				aboutPanel.setVisible (true);
 			}
-        });
+		});
 	}
 
 	private JPanel getPnlConnection() {
@@ -593,32 +590,33 @@ public class MainForm extends JFrame implements ActionListener
 			pnlConnection.add(getTxtPass(), null);
 			pnlConnection.add(getBtnSocketConn(), null);
 			pnlConnection.add(getBtnSockDisconnect(), null);
-			
+
 			txtConnPortTCP.addFocusListener(new FocusListener()
 			{
-	        	public void focusGained (FocusEvent e) { addFocus(txtConnPortTCP); }
-	        	public void focusLost (FocusEvent e) {}
+				public void focusGained (FocusEvent e) { addFocus(txtConnPortTCP); }
+				public void focusLost (FocusEvent e) {}
 			});
-			
+
 			txtConnPortUDP.addFocusListener(new FocusListener()
 			{
-	        	public void focusGained (FocusEvent e) { addFocus(txtConnPortUDP); }
-	        	public void focusLost (FocusEvent e) {}
+				public void focusGained (FocusEvent e) { addFocus(txtConnPortUDP); }
+				public void focusLost (FocusEvent e) {}
 			});
 		}
 		return pnlConnection;
 	}
-	
+
 	// Method used to create focus in each text field
 	public void addFocus(JTextField tf)
 	{
 		tf.selectAll();
 	}
-	
+
 	private JTextField getTxtConnIP() {
 		if (txtConnIP == null) {
 			txtConnIP = new JTextField();
 			txtConnIP.setBounds(new Rectangle(95, 24, 175, 20));
+			txtConnIP.setText("129.25.9.");
 		}
 		return txtConnIP;
 	}
@@ -704,7 +702,7 @@ public class MainForm extends JFrame implements ActionListener
 		}
 		return txtChannel;
 	}
-	
+
 	private JTextField getTxtChannel2() {
 		if (txtChannel2 == null) {
 			txtChannel2 = new JTextField();
@@ -783,7 +781,6 @@ public class MainForm extends JFrame implements ActionListener
 		if (txtDescription == null) {
 			txtDescription = new JTextField();
 			txtDescription.setBounds(new Rectangle(209, 88, 338, 48));
-			//txtDescription.setLineWrap(true);
 			txtDescription.setText("(Description)");
 		}
 		return txtDescription;
