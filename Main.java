@@ -8,6 +8,7 @@
 public class Main 
 {
 
+	@SuppressWarnings("deprecation")
 	public static void main(String[] args) 
 	{		
 		new MainForm().show();			//show GUI

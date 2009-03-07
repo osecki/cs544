@@ -19,10 +19,10 @@ public class TCPThread extends Thread
 	public TCPThread(String host, int port)
 	{
 		super();						// call base constructor
-		
+
 		hostAddr = host;				// save host address
 		hostPort = port;				// set host port
-		
+
 		try 
 		{
 			// Create socket and connect
@@ -41,7 +41,7 @@ public class TCPThread extends Thread
 	public void run()
 	{
 		byte[] buffer = new byte[1024];
-		
+
 		try
 		{
 			// Loop forever to read from socket
@@ -49,25 +49,31 @@ public class TCPThread extends Thread
 			{
 				if (sock.isConnected())
 				{
-				
 					int readLen = sock.getInputStream().read(buffer, 0, 1024);	//read socket
+
+					System.out.println("readLen = " + readLen);
+
 					String incomingXML = new String(buffer);					//get string
 					incomingXML = incomingXML.substring(0, readLen);
-					System.out.println("-");
 					System.out.println("RECEIVED: " + incomingXML);
-					
+
 					CmdLib.ParseIncomingMessage(incomingXML);					//parse xml
 				}
+				else
+				{
+					System.out.println("Inside run the socket is no longer connected. Crashed? Kicked? Banned?");
+				}
+
 				sleep(1000);												//sleep
 			}
-			
+
 		}
 		catch(Exception e)
 		{
 			System.out.println("Error: TCPThread::run - " + e.getMessage());
 		}
 	}
-	
+
 	public static void write(String xmlMsg)
 	{
 		// Write data out the socket to the server
@@ -78,8 +84,8 @@ public class TCPThread extends Thread
 				//write out the socket
 				sock.getOutputStream().write(xmlMsg.getBytes(), 0, xmlMsg.getBytes().length);
 				sock.getOutputStream().flush();
-				System.out.println("SENDING: " + xmlMsg);
 				System.out.println("-");
+				System.out.println("SENDING: " + xmlMsg);
 			}
 		} 
 		catch (IOException e) 
@@ -87,7 +93,7 @@ public class TCPThread extends Thread
 			System.out.println("Error: TCPThread::write - " + e.getMessage());
 		}
 	}
-	
+
 	@SuppressWarnings("deprecation")
 	public void Close()
 	{
@@ -95,7 +101,7 @@ public class TCPThread extends Thread
 		{
 			if (TCPThread.sock != null)
 				TCPThread.sock.close();
-			
+
 			this.stop();
 		} 
 		catch (IOException e) 
