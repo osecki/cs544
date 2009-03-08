@@ -51,13 +51,16 @@ public class TCPThread extends Thread
 				{
 					int readLen = sock.getInputStream().read(buffer, 0, 1024);	//read socket
 
-					System.out.println("readLen = " + readLen);
+					//System.out.println("readLen = " + readLen);
 
-					String incomingXML = new String(buffer);					//get string
-					incomingXML = incomingXML.substring(0, readLen);
-					System.out.println("RECEIVED: " + incomingXML);
+					if ( readLen != -1 )
+					{
+						String incomingXML = new String(buffer);					//get string
+						incomingXML = incomingXML.substring(0, readLen);
+						System.out.println("RECEIVED: " + incomingXML);
 
-					CmdLib.ParseIncomingMessage(incomingXML);					//parse xml
+						CmdLib.ParseIncomingMessage(incomingXML);					//parse xml
+					}
 				}
 				else
 				{

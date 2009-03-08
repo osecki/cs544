@@ -10,6 +10,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.JPanel;
 import javax.swing.JFrame;
 import java.awt.Rectangle;
+import java.util.Vector;
 import java.util.regex.*;
 import javax.swing.DefaultListModel;
 import javax.swing.JMenu;
@@ -28,9 +29,13 @@ import java.awt.event.*;
 public class MainForm extends JFrame implements ActionListener
 {
 	private boolean udpSetup = false;
-	private boolean operator = false;
+	private static boolean operator = false;
+	
 	private String nickname = "";
 	private static String channelName = "";
+	private static Vector <String> muteList;
+	private static boolean newChannel = false;
+	
 	private UDPReceiver udpReceiver;
 	private UDPTransmitter udpTransmitter;
 	private TCPThread tcpThread;
@@ -54,25 +59,25 @@ public class MainForm extends JFrame implements ActionListener
 	private JLabel lblChanDesc = null;
 	private JTextField txtChannel = null;
 	private JTextField txtChannel2 = null;
-	private JButton btnJoin = null;
-	private JButton btnPart = null;
+	private static JButton btnJoin = null;
+	private static JButton btnPart = null;
 	private JButton btnDisconnect = null;
 	private JPanel pnlChannelInfo = null;
 	private JScrollPane pnlUsers = null;
 	private static JList listUsers = null;
 	private static JTextField txtDescription = null;
-	private JButton btnKick = null;
-	private JButton btnBan = null;
-	private JButton btnMute = null;
+	private static JButton btnKick = null;
+	private static JButton btnBan = null;
+	private static JButton btnMute = null;
 	private JTextField txtConnPortUDP = null;
 	private JLabel lblPass = null;
 	private JPasswordField txtPass = null;
 	private JButton btnSocketConn = null;
 	private JButton btnSockDisconnect = null;
-	private JTextField txtChannelDisplayName = null;
+	private static JTextField txtChannelDisplayName = null;
 	private static JTextField txtNewDesc = null;
-	private JButton btnNewDesc = null;
-	private JButton btnRefreshUsers = null;
+	private static JButton btnNewDesc = null;
+	private static JButton btnRefreshUsers = null;
 	private JButton btnRefreshChannels = null;
 
 	public MainForm() 
@@ -99,23 +104,23 @@ public class MainForm extends JFrame implements ActionListener
 		this.btnConnect.setEnabled(false);		//disable connect button
 		this.btnDisconnect.setEnabled(false);	//disable disconnect button
 
-		MainForm.cboChannel.setEnabled(false);		//disable channel drop down
+		cboChannel.setEnabled(false);			//disable channel drop down
 		this.txtChannel.setEnabled(false);		//disable channel textbox
 		this.txtChannel2.setEnabled(false); 	//disable channel textbox 2
-		this.btnJoin.setEnabled(false);			//disable join button
-		this.btnPart.setEnabled(false);			//disable part button
+		btnJoin.setEnabled(false);				//disable join button
+		btnPart.setEnabled(false);				//disable part button
 
-		this.btnBan.setEnabled(false);		//disable ban button
-		this.btnKick.setEnabled(false);		//disable kick button
-		this.btnMute.setEnabled(false);		//disable mute button
+		btnBan.setEnabled(false);			//disable ban button
+		btnKick.setEnabled(false);			//disable kick button
+		btnMute.setEnabled(false);			//disable mute button
 
-		this.txtChannelDisplayName.setEditable(false);	//disable
-		MainForm.txtDescription.setEditable(false);		//disable
+		txtChannelDisplayName.setEditable(false);	//disable
+		txtDescription.setEditable(false);			//disable
 
-		MainForm.txtNewDesc.setEnabled(false);			//disable
-		this.btnNewDesc.setEnabled(false);				//disable
+		txtNewDesc.setEnabled(false);				//disable
+		btnNewDesc.setEnabled(false);				//disable
 
-		this.btnRefreshUsers.setEnabled(false);			//disable
+		btnRefreshUsers.setEnabled(false);				//disable
 		this.btnRefreshChannels.setEnabled(false);		//disable
 	}
 
@@ -235,16 +240,8 @@ public class MainForm extends JFrame implements ActionListener
 
 				// Create join command
 				CmdLib.CreateJoinCommand(channelName, nickname, "");
-
-				// Change button statuses
-				this.btnJoin.setEnabled(false);
-				this.btnPart.setEnabled(true);
-				this.btnMute.setEnabled(true);
-				this.btnRefreshUsers.setEnabled(true);
-
-				// Update bottom boxes
-				this.txtChannelDisplayName.setText("Connected to ... " + channelName);
-				// Description is set in the server response handler method
+				
+				newChannel = false;
 			}
 			else if ( ((String)cboChannel.getSelectedItem()).equals("(New Channel)") && ! this.txtChannel.getText().equals("") )
 			{
@@ -263,23 +260,8 @@ public class MainForm extends JFrame implements ActionListener
 
 					// Create join command
 					CmdLib.CreateJoinCommand(channelName, nickname, this.txtChannel2.getText());
-
-					// Change button statuses
-					this.btnJoin.setEnabled(false);
-					this.btnPart.setEnabled(true);
-					this.btnMute.setEnabled(true);
-					this.btnRefreshUsers.setEnabled(true);
-
-					// Update bottom boxes
-					this.txtChannelDisplayName.setText("Connected to ... " + channelName);
-					txtDescription.setText(this.txtChannel2.getText());
-
-					// Created new one, so operator
-					operator = true;
-					this.btnKick.setEnabled(true);
-					this.btnBan.setEnabled(true);
-					this.btnNewDesc.setEnabled(true);
-					MainForm.txtNewDesc.setEnabled(true);
+					
+					newChannel = true;
 				}
 				else
 				{
@@ -298,55 +280,62 @@ public class MainForm extends JFrame implements ActionListener
 			// Create part command
 			CmdLib.CreatePartCommand(channelName, nickname);
 
-			this.btnJoin.setEnabled(true);
-			this.btnPart.setEnabled(false);
-			this.btnRefreshUsers.setEnabled(false);
+			btnJoin.setEnabled(true);
+			btnPart.setEnabled(false);
+			btnRefreshUsers.setEnabled(false);
 
 			// Reset ops
 			operator = false;
-			this.btnKick.setEnabled(false);
-			this.btnBan.setEnabled(false);
-			this.btnMute.setEnabled(false);
-			this.btnNewDesc.setEnabled(false);
+			btnKick.setEnabled(false);
+			btnBan.setEnabled(false);
+			btnMute.setEnabled(false);
+			btnNewDesc.setEnabled(false);
 			MainForm.txtNewDesc.setEnabled(false);
+			
+			muteList.removeAllElements();
 
 			// Update bottom boxes
-			this.txtChannelDisplayName.setText("Not connected to any channel...");
+			txtChannelDisplayName.setText("Not connected to any channel...");
 			MainForm.txtDescription.setText("(Description)");
 		}
 		else if (event.getSource() == btnKick)
 		{
-			if ( operator && listUsers.getSelectedIndex() != -1 )
+			if ( operator && listUsers.getSelectedIndex() != -1 && ! ((String)listUsers.getSelectedValue()).equals(nickname) )
 			{
 				CmdLib.CreateKickCommand(channelName, (String)listUsers.getSelectedValue());
 			}
 			else
 			{
-				JOptionPane.showMessageDialog(getJFrame(), "Please select a nickname before performing this action.",
+				JOptionPane.showMessageDialog(getJFrame(), "Please select a nickname (not your own) before performing this action.",
 						"No nickname selected", JOptionPane.WARNING_MESSAGE);
 			}
 		}
 		else if (event.getSource() == btnBan)
 		{
-			if ( operator && listUsers.getSelectedIndex() != -1 )
+			if ( operator && listUsers.getSelectedIndex() != -1 && ! ((String)listUsers.getSelectedValue()).equals(nickname) )
 			{
 				CmdLib.CreateBanCommand(channelName, (String)listUsers.getSelectedValue());
 			}
 			else
 			{
-				JOptionPane.showMessageDialog(getJFrame(), "Please select a nickname before performing this action.",
+				JOptionPane.showMessageDialog(getJFrame(), "Please select a nickname (not your own) before performing this action.",
 						"No nickname selected", JOptionPane.WARNING_MESSAGE);
 			}
 		}
 		else if (event.getSource() == btnMute)
 		{
-			if ( listUsers.getSelectedIndex() != -1 )
+			if ( listUsers.getSelectedIndex() != -1 && ! ((String)listUsers.getSelectedValue()).equals(nickname) )
 			{
 				CmdLib.CreateMuteCommand(channelName, (String)listUsers.getSelectedValue());
+				
+				if ( ! muteList.contains((String)listUsers.getSelectedValue()) )
+						muteList.addElement((String)listUsers.getSelectedValue());
+				else
+					muteList.remove((String)listUsers.getSelectedValue());
 			}
 			else
 			{
-				JOptionPane.showMessageDialog(getJFrame(), "Please select a nickname before performing this action.",
+				JOptionPane.showMessageDialog(getJFrame(), "Please select a nickname (not your own) before performing this action.",
 						"No nickname selected", JOptionPane.WARNING_MESSAGE);
 			}
 		}
@@ -410,7 +399,12 @@ public class MainForm extends JFrame implements ActionListener
 			DefaultListModel dlm = new DefaultListModel();
 
 			for (int i = 0; i < respMsg.getUserNicks().size(); i++)
-				dlm.addElement(respMsg.getUserNicks().elementAt(i));
+			{
+				if ( muteList.contains(respMsg.getUserNicks().elementAt(i)))
+					dlm.addElement(respMsg.getUserNicks().elementAt(i) + " (Muted)");
+				else
+					dlm.addElement(respMsg.getUserNicks().elementAt(i));
+			}
 
 			listUsers.setModel(dlm);
 		}
@@ -422,11 +416,115 @@ public class MainForm extends JFrame implements ActionListener
 		{
 			CmdLib.CreateGetChansCommand();
 		}
+		else if ( respMsg.getCommand().equals("Mute") )
+		{
+			CmdLib.CreateGetUsersCommand(channelName);
+		}
+		else if ( respMsg.getCommand().equals("Kick") )
+		{
+			// First check to see if this is an ACTION command to inform a user they were kicked
+			if ( respMsg.getStatusMsg().contains("Kicked from"))
+			{
+				// Reset basic buttons
+				btnJoin.setEnabled(true);
+				btnPart.setEnabled(false);
+				btnRefreshUsers.setEnabled(false);
+
+				// Reset ops and mute
+				operator = false;
+				btnKick.setEnabled(false);
+				btnBan.setEnabled(false);
+				btnMute.setEnabled(false);
+				btnNewDesc.setEnabled(false);
+				txtNewDesc.setEnabled(false);
+				
+				muteList.removeAllElements();
+
+				// Update bottom boxes
+				txtChannelDisplayName.setText("Not connected to any channel...");
+				MainForm.txtDescription.setText("(Description)");
+			}
+			
+			// If operator gets a failed response
+			if ( respMsg.getStatusCode() == 1 )
+			{
+				JOptionPane.showMessageDialog(new MainForm(), "Error, User could not be kicked from the channel.",
+						"Failed Kick Attempt", JOptionPane.WARNING_MESSAGE);
+			}
+			
+			CmdLib.CreateGetUsersCommand(channelName);
+		}
+		else if ( respMsg.getCommand().equals("Ban") )
+		{
+			// First check to see if this is an ACTION command to inform a user they were banned
+			if ( respMsg.getStatusMsg().contains("Banned from"))
+			{
+				// Reset basic buttons
+				btnJoin.setEnabled(true);
+				btnPart.setEnabled(false);
+				btnRefreshUsers.setEnabled(false);
+
+				// Reset ops and mute
+				operator = false;
+				btnKick.setEnabled(false);
+				btnBan.setEnabled(false);
+				btnMute.setEnabled(false);
+				btnNewDesc.setEnabled(false);
+				txtNewDesc.setEnabled(false);
+				
+				muteList.removeAllElements();
+
+				// Update bottom boxes
+				txtChannelDisplayName.setText("Not connected to any channel...");
+				MainForm.txtDescription.setText("(Description)");
+			}
+			
+			// If operator gets a failed response
+			if ( respMsg.getStatusCode() == 1 )
+			{
+				JOptionPane.showMessageDialog(new MainForm(), "Error, User could not be banned from the channel.",
+						"Failed Ban Attempt", JOptionPane.WARNING_MESSAGE);
+			}
+			
+			CmdLib.CreateGetUsersCommand(channelName);
+		}
 		else if (respMsg.getCommand().equals("Join"))
 		{
-			// Set description and issue getusers
-			CmdLib.CreateGetUsersCommand(channelName);
-			txtDescription.setText(respMsg.getStatusMsg());
+			// If Successfully joined
+			if ( respMsg.getStatusCode() == 0)
+			{
+				// Change button statuses
+				btnJoin.setEnabled(false);
+				btnPart.setEnabled(true);
+				btnMute.setEnabled(true);
+				btnRefreshUsers.setEnabled(true);
+				
+				// Create mute
+				muteList = new Vector <String> ();
+
+				// Update bottom boxes
+				txtChannelDisplayName.setText("Connected to ... " + channelName);
+				txtDescription.setText(respMsg.getStatusMsg());
+				
+				// Issue getusers
+				CmdLib.CreateGetUsersCommand(channelName);
+				
+				if ( newChannel )
+				{
+					// Created new one, so operator
+					operator = true;
+					btnKick.setEnabled(true);
+					btnBan.setEnabled(true);
+					btnNewDesc.setEnabled(true);
+					MainForm.txtNewDesc.setEnabled(true);
+				}
+			}
+			// Unsuccessfully joined because banned from it
+			else
+			{
+				JOptionPane.showMessageDialog(new MainForm(), "Cannot join this channel because have been banned from it.",
+						"Invalid Join Attempt", JOptionPane.WARNING_MESSAGE);
+			}
 		}
 		else if ((respMsg.getCommand().equals("NewDesc")) && (respMsg.getStatusCode() == 0))
 		{
