@@ -419,6 +419,8 @@ public class MainForm extends JFrame implements ActionListener
 		}
 		else if ( respMsg.getCommand().equals("Conn") )
 		{
+			// TODO
+			
 			CmdLib.CreateGetChansCommand();
 		}
 		else if ( respMsg.getCommand().equals("Part") )
