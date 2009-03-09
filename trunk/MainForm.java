@@ -443,6 +443,9 @@ public class MainForm extends JFrame implements ActionListener
 			// First check to see if this is an ACTION command to inform a user they were kicked
 			if ( respMsg.getStatusMsg().contains("Kicked from"))
 			{
+				JOptionPane.showMessageDialog(Main.getTemp(), "You were kicked from the channel.",
+						"KICKED", JOptionPane.WARNING_MESSAGE);
+				
 				// Reset basic buttons
 				btnJoin.setEnabled(true);
 				btnPart.setEnabled(false);
@@ -477,6 +480,9 @@ public class MainForm extends JFrame implements ActionListener
 			// First check to see if this is an ACTION command to inform a user they were banned
 			if ( respMsg.getStatusMsg().contains("Banned from"))
 			{
+				JOptionPane.showMessageDialog(Main.getTemp(), "You were banned from the channel.",
+						"BANNED", JOptionPane.WARNING_MESSAGE);
+				
 				// Reset basic buttons
 				btnJoin.setEnabled(true);
 				btnPart.setEnabled(false);
