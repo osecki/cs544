@@ -466,7 +466,7 @@ public class MainForm extends JFrame implements ActionListener
 			// If operator gets a failed response
 			if ( respMsg.getStatusCode() == 1 )
 			{
-				JOptionPane.showMessageDialog(new MainForm(), "Error, User could not be kicked from the channel.",
+				JOptionPane.showMessageDialog(Main.getTemp(), "Error, User could not be kicked from the channel.",
 						"Failed Kick Attempt", JOptionPane.WARNING_MESSAGE);
 			}
 			
@@ -500,7 +500,7 @@ public class MainForm extends JFrame implements ActionListener
 			// If operator gets a failed response
 			if ( respMsg.getStatusCode() == 1 )
 			{
-				JOptionPane.showMessageDialog(new MainForm(), "Error, User could not be banned from the channel.",
+				JOptionPane.showMessageDialog(Main.getTemp(), "Error, User could not be banned from the channel.",
 						"Failed Ban Attempt", JOptionPane.WARNING_MESSAGE);
 			}
 			
