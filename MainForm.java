@@ -326,7 +326,16 @@ public class MainForm extends JFrame implements ActionListener
 		{
 			if ( listUsers.getSelectedIndex() != -1 && ! ((String)listUsers.getSelectedValue()).equals(nickname) )
 			{
-				CmdLib.CreateMuteCommand(channelName, (String)listUsers.getSelectedValue());
+				//get the user name
+				String userName = (String)listUsers.getSelectedValue();
+				
+				//if they are already muted, strip out (Muted)
+				int mutedPos = userName.indexOf(" (Muted)");
+
+				if (mutedPos >= 0)
+					userName = userName.substring(0, mutedPos - 1);
+				
+				CmdLib.CreateMuteCommand(channelName, userName);
 				
 				if ( ! muteList.contains((String)listUsers.getSelectedValue()) )
 						muteList.addElement((String)listUsers.getSelectedValue());
