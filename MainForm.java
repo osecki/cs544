@@ -540,7 +540,7 @@ public class MainForm extends JFrame implements ActionListener
 			// Unsuccessfully joined because banned from it
 			else
 			{
-				JOptionPane.showMessageDialog(new MainForm(), "Cannot join this channel because you have been banned from it.",
+				JOptionPane.showMessageDialog(Main.getTemp(), "Cannot join this channel because you have been banned from it.",
 						"Invalid Join Attempt", JOptionPane.WARNING_MESSAGE);
 			}
 		}
