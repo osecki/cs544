@@ -28,7 +28,7 @@ import java.awt.event.*;
 
 public class MainForm extends JFrame implements ActionListener
 {
-	private boolean udpSetup = false;
+	private static boolean udpSetup = false;
 	private static boolean operator = false;
 	
 	private String nickname = "";
@@ -36,8 +36,8 @@ public class MainForm extends JFrame implements ActionListener
 	private static Vector <String> muteList;
 	private static boolean newChannel = false;
 	
-	private UDPReceiver udpReceiver;
-	private UDPTransmitter udpTransmitter;
+	private static UDPReceiver udpReceiver;
+	private static UDPTransmitter udpTransmitter;
 	private TCPThread tcpThread;
 
 	private static final long serialVersionUID = 1L;
@@ -45,9 +45,9 @@ public class MainForm extends JFrame implements ActionListener
 	private JPanel pnlConnection = null;
 	private JLabel lblConnIP = null;
 	private JLabel lblConnPort = null;
-	private JTextField txtConnIP = null;
+	private static JTextField txtConnIP = null;
 	private JTextField txtConnPortTCP = null;
-	private JButton btnConnect = null;
+	private static JButton btnConnect = null;
 	private JLabel lblName = null;
 	private JLabel lblNick = null;
 	private JTextField txtName = null;
@@ -57,11 +57,11 @@ public class MainForm extends JFrame implements ActionListener
 	private static JComboBox cboChannel = null;
 	private JLabel lblChanName = null;
 	private JLabel lblChanDesc = null;
-	private JTextField txtChannel = null;
-	private JTextField txtChannel2 = null;
+	private static JTextField txtChannel = null;
+	private static JTextField txtChannel2 = null;
 	private static JButton btnJoin = null;
 	private static JButton btnPart = null;
-	private JButton btnDisconnect = null;
+	private static JButton btnDisconnect = null;
 	private JPanel pnlChannelInfo = null;
 	private JScrollPane pnlUsers = null;
 	private static JList listUsers = null;
@@ -69,16 +69,16 @@ public class MainForm extends JFrame implements ActionListener
 	private static JButton btnKick = null;
 	private static JButton btnBan = null;
 	private static JButton btnMute = null;
-	private JTextField txtConnPortUDP = null;
+	private static JTextField txtConnPortUDP = null;
 	private JLabel lblPass = null;
 	private JPasswordField txtPass = null;
 	private JButton btnSocketConn = null;
-	private JButton btnSockDisconnect = null;
+	private static JButton btnSockDisconnect = null;
 	private static JTextField txtChannelDisplayName = null;
 	private static JTextField txtNewDesc = null;
 	private static JButton btnNewDesc = null;
 	private static JButton btnRefreshUsers = null;
-	private JButton btnRefreshChannels = null;
+	private static JButton btnRefreshChannels = null;
 
 	public MainForm() 
 	{
@@ -100,13 +100,13 @@ public class MainForm extends JFrame implements ActionListener
 
 	private void InitGUI()
 	{
-		this.btnSockDisconnect.setEnabled(false); //disable socket disconnect button
-		this.btnConnect.setEnabled(false);		//disable connect button
-		this.btnDisconnect.setEnabled(false);	//disable disconnect button
+		btnSockDisconnect.setEnabled(false); 	//disable socket disconnect button
+		btnConnect.setEnabled(false);			//disable connect button
+		btnDisconnect.setEnabled(false);		//disable disconnect button
 
 		cboChannel.setEnabled(false);			//disable channel drop down
-		this.txtChannel.setEnabled(false);		//disable channel textbox
-		this.txtChannel2.setEnabled(false); 	//disable channel textbox 2
+		txtChannel.setEnabled(false);			//disable channel textbox
+		txtChannel2.setEnabled(false); 			//disable channel textbox 2
 		btnJoin.setEnabled(false);				//disable join button
 		btnPart.setEnabled(false);				//disable part button
 
@@ -121,7 +121,7 @@ public class MainForm extends JFrame implements ActionListener
 		btnNewDesc.setEnabled(false);				//disable
 
 		btnRefreshUsers.setEnabled(false);				//disable
-		this.btnRefreshChannels.setEnabled(false);		//disable
+		btnRefreshChannels.setEnabled(false);			//disable
 	}
 
 	// Method where events trigger
@@ -138,7 +138,7 @@ public class MainForm extends JFrame implements ActionListener
 			{
 				// Open the TCP socket
 				// Setup TCP thread and sockets due to the Connect command
-				String hostIP = this.txtConnIP.getText();
+				String hostIP = txtConnIP.getText();
 				int hostTCPPort = Integer.parseInt(this.txtConnPortTCP.getText());
 				tcpThread = new TCPThread(hostIP, hostTCPPort);
 				tcpThread.start();
@@ -153,15 +153,15 @@ public class MainForm extends JFrame implements ActionListener
 						"Invalid Input Error", JOptionPane.WARNING_MESSAGE);
 			}
 		}
-		else if (event.getSource() == this.btnSockDisconnect)
+		else if (event.getSource() == btnSockDisconnect)
 		{
 			// Close the TCP socket
 			// Close connections
 			this.tcpThread.Close();
-			this.udpReceiver.close();
-			this.udpTransmitter.stopTx();
+			udpReceiver.close();
+			udpTransmitter.stopTx();
 
-			this.udpSetup = false;
+			udpSetup = false;
 
 			// Change button statuses
 			btnSockDisconnect.setEnabled(false);
@@ -174,38 +174,12 @@ public class MainForm extends JFrame implements ActionListener
 			String[] tempIP = txtConnIP.getText().split("\\.");
 			if ( tempIP.length == 4 && Pattern.matches("^\\d+$", tempIP[0]) && Pattern.matches("^\\d+$", tempIP[1]) &&
 					Pattern.matches("^\\d+$", tempIP[2]) && Pattern.matches("^\\d+$", tempIP[3]) && 
-					Pattern.matches("^\\d+$", this.txtConnPortTCP.getText()) && Pattern.matches("^\\d+$", this.txtConnPortUDP.getText()) &&
+					Pattern.matches("^\\d+$", this.txtConnPortTCP.getText()) && Pattern.matches("^\\d+$", txtConnPortUDP.getText()) &&
 					! txtNick.getText().equals("") && ! txtName.getText().equals("") && ! txtPass.getText().equals("") )
 			{
-				if ( ! this.udpSetup )
-				{
-					this.udpSetup = true;
-
-					// Setup UDP receiver thread
-					String[] argv = new String[1];
-					argv[0] = this.txtConnIP.getText() + "/" + this.txtConnPortUDP.getText();
-					udpReceiver = new UDPReceiver(argv);
-					udpReceiver.start();
-
-					// Setup UDP transmitter thread
-					udpTransmitter = new UDPTransmitter(new MediaLocator("javasound://44100"),
-							this.txtConnIP.getText(), this.txtConnPortUDP.getText(), null);    
-					udpTransmitter.start();
-				}
-
 				// Create and send connection command
 				nickname = this.txtNick.getText();
 				CmdLib.CreateConnCommand(nickname, "", this.txtName.getText(), this.txtPass.getText());
-
-				//Change button status
-				btnConnect.setEnabled(false);
-				btnDisconnect.setEnabled(true);
-				btnJoin.setEnabled(true);
-				cboChannel.setEnabled(true);
-				btnRefreshChannels.setEnabled(true);
-				txtChannel.setEnabled(true);
-				txtChannel2.setEnabled(true);
-				btnSockDisconnect.setEnabled(false);
 			}
 			else
 			{
@@ -243,23 +217,23 @@ public class MainForm extends JFrame implements ActionListener
 				
 				newChannel = false;
 			}
-			else if ( ((String)cboChannel.getSelectedItem()).equals("(New Channel)") && ! this.txtChannel.getText().equals("") )
+			else if ( ((String)cboChannel.getSelectedItem()).equals("(New Channel)") && ! txtChannel.getText().equals("") )
 			{
 				// First check to see if there is one already named this
 				boolean doesntExist = true;
 				for (int i = 0; i < cboChannel.getItemCount(); i++)
 				{
-					if ( this.txtChannel.getText().equals(((String)cboChannel.getItemAt(i))))
+					if ( txtChannel.getText().equals(((String)cboChannel.getItemAt(i))))
 						doesntExist = false;
 				}
 
 				if ( doesntExist ) // Mean it is a unique channel, so create it
 				{
 					// Means a new channel is being created
-					channelName = this.txtChannel.getText();
+					channelName = txtChannel.getText();
 
 					// Create join command
-					CmdLib.CreateJoinCommand(channelName, nickname, this.txtChannel2.getText());
+					CmdLib.CreateJoinCommand(channelName, nickname, txtChannel2.getText());
 					
 					newChannel = true;
 				}
@@ -419,9 +393,42 @@ public class MainForm extends JFrame implements ActionListener
 		}
 		else if ( respMsg.getCommand().equals("Conn") )
 		{
-			// TODO
-			
-			CmdLib.CreateGetChansCommand();
+			if ( respMsg.getStatusCode() == 0 )
+			{
+				// Setting up UDP Port
+				if ( ! udpSetup )
+				{
+					udpSetup = true;
+
+					// Setup UDP receiver thread
+					String[] argv = new String[1];
+					argv[0] = txtConnIP.getText() + "/" + txtConnPortUDP.getText();
+					udpReceiver = new UDPReceiver(argv);
+					udpReceiver.start();
+
+					// Setup UDP transmitter thread
+					udpTransmitter = new UDPTransmitter(new MediaLocator("javasound://44100"),
+							txtConnIP.getText(), txtConnPortUDP.getText(), null);    
+					udpTransmitter.start();
+				}
+				
+				//Change button status
+				btnConnect.setEnabled(false);
+				btnDisconnect.setEnabled(true);
+				btnJoin.setEnabled(true);
+				cboChannel.setEnabled(true);
+				btnRefreshChannels.setEnabled(true);
+				txtChannel.setEnabled(true);
+				txtChannel2.setEnabled(true);
+				btnSockDisconnect.setEnabled(false);
+				
+				CmdLib.CreateGetChansCommand();
+			}
+			else
+			{
+				JOptionPane.showMessageDialog(new MainForm(), "Error connecting or you used a nickname that already exists.",
+						"Invalid Connect Attempt", JOptionPane.WARNING_MESSAGE);
+			}
 		}
 		else if ( respMsg.getCommand().equals("Part") )
 		{
@@ -533,7 +540,7 @@ public class MainForm extends JFrame implements ActionListener
 			// Unsuccessfully joined because banned from it
 			else
 			{
-				JOptionPane.showMessageDialog(new MainForm(), "Cannot join this channel because have been banned from it.",
+				JOptionPane.showMessageDialog(new MainForm(), "Cannot join this channel because you have been banned from it.",
 						"Invalid Join Attempt", JOptionPane.WARNING_MESSAGE);
 			}
 		}
