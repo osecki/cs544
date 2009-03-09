@@ -337,10 +337,10 @@ public class MainForm extends JFrame implements ActionListener
 				
 				CmdLib.CreateMuteCommand(channelName, userName);
 				
-				if ( ! muteList.contains((String)listUsers.getSelectedValue()) )
-						muteList.addElement((String)listUsers.getSelectedValue());
+				if ( ! muteList.contains(userName ) )
+						muteList.addElement(userName);
 				else
-					muteList.remove((String)listUsers.getSelectedValue());
+					muteList.remove(userName);
 			}
 			else
 			{
