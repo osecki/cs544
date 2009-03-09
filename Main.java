@@ -7,11 +7,18 @@
 
 public class Main 
 {
+	static MainForm temp = new MainForm();
+	
+	/**
+	 * @return the temp
+	 */
+	public static MainForm getTemp() {
+		return temp;
+	}
 
 	@SuppressWarnings("deprecation")
 	public static void main(String[] args) 
 	{		
-		new MainForm().show();			//show GUI
+		temp.show();			//show GUI
 	}
-
 }
