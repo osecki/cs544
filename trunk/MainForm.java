@@ -333,7 +333,7 @@ public class MainForm extends JFrame implements ActionListener
 				int mutedPos = userName.indexOf(" (Muted)");
 
 				if (mutedPos >= 0)
-					userName = userName.substring(0, mutedPos - 1);
+					userName = userName.substring(0, mutedPos);
 				
 				CmdLib.CreateMuteCommand(channelName, userName);
 				
