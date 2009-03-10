@@ -27,7 +27,7 @@ public class AboutPanel extends JFrame
 			"<p align='center'>Version 1.0<p align='center'>(C) Copyright 2009, Osecki, Cochran, Shaya. All rights reserved.<p align='center'>" +
 			"<p align='center'>This software was developed for CS544 at Drexel University in the Winter of 2009.<p align='center'>" + 
 			"For more information about the software, please contact Cochran, Shaya, or Osecki.<br><br></html>");
-	JLabel image = new JLabel(new ImageIcon ("src/AboutLogo.jpg"));
+	JLabel image = new JLabel(new ImageIcon ("AboutLogo.jpg"));
 	
 	// Constructor for About Panel
 	public AboutPanel ()
