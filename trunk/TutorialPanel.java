@@ -38,7 +38,7 @@ public class TutorialPanel extends JFrame
 	
 		try 
 		{
-			InputStream in = new FileInputStream("Tutorial.htm");
+			InputStream in = getClass().getResourceAsStream("Tutorial.htm");
 			htmlPane = new JEditorPane();
 			htmlPane.setContentType("text/html");
 			htmlPane.read(in, new HTMLDocument ());
