@@ -5,6 +5,9 @@
  *  Copyright (C) 2009 - File used for CS544 by Bill Shaya, Jordan Osecki, and Robert Cochran.
  */
 
+// Source:  Much of this file was borrow from the JMF. Please read below for details. If you have
+//   any questions, don't hesitate to ask.
+
 /*
  * @(#)AVReceive2.java	1.3 01/03/13
  *
@@ -63,7 +66,6 @@ ControllerListener
 	}
 
 	protected boolean initialize() {
-
 		try {
 			InetAddress ipAddr;
 			SessionAddress localAddr = new SessionAddress();
@@ -148,11 +150,9 @@ ControllerListener
 		return true;
 	}
 
-
 	public boolean isDone() {
 		return playerWindows.size() == 0;
 	}
-
 
 	/**
 	 * Close the players and the session managers.
@@ -177,7 +177,6 @@ ControllerListener
 		}
 	}
 
-
 	PlayerWindow find(Player p) {
 		for (int i = 0; i < playerWindows.size(); i++) {
 			PlayerWindow pw = (PlayerWindow)playerWindows.elementAt(i);
@@ -187,7 +186,6 @@ ControllerListener
 		return null;
 	}
 
-
 	PlayerWindow find(ReceiveStream strm) {
 		for (int i = 0; i < playerWindows.size(); i++) {
 			PlayerWindow pw = (PlayerWindow)playerWindows.elementAt(i);
@@ -196,7 +194,6 @@ ControllerListener
 		}
 		return null;
 	}
-
 
 	/**
 	 * SessionListener.
@@ -208,12 +205,10 @@ ControllerListener
 		}
 	}
 
-
 	/**
 	 * ReceiveStreamListener
 	 */
 	public synchronized void update( ReceiveStreamEvent evt) {
-
 		//RTPManager mgr = (RTPManager)evt.getSource();
 		Participant participant = evt.getParticipant();	// could be null.
 		ReceiveStream stream = evt.getReceiveStream();  // could be null.
@@ -225,7 +220,6 @@ ControllerListener
 			System.exit(0);
 
 		}
-
 		else if (evt instanceof NewReceiveStreamEvent) {
 
 			try {
@@ -260,14 +254,11 @@ ControllerListener
 					dataReceived = true;
 					dataSync.notifyAll();
 				}
-
 			} catch (Exception e) {
 				System.err.println("NewReceiveStreamEvent exception " + e.getMessage());
 				return;
 			}
-
 		}
-
 		else if (evt instanceof StreamMappedEvent) {
 
 			if (stream != null && stream.getDataSource() != null) {
@@ -292,7 +283,6 @@ ControllerListener
 		}
 
 	}
-
 
 	/**
 	 * ControllerListener for the Players.
@@ -328,7 +318,6 @@ ControllerListener
 		}
 
 	}
-
 
 	/**
 	 * A utility class to parse the session addresses.
@@ -402,7 +391,6 @@ ControllerListener
 		}
 	}
 
-
 	/**
 	 * GUI classes for the Player.
 	 */
@@ -434,12 +422,10 @@ ControllerListener
 		}
 	}
 
-
 	/**
 	 * GUI classes for the Player.
 	 */
 	class PlayerPanel extends Panel {
-
 
 		private static final long serialVersionUID = 1L;
 
@@ -492,7 +478,3 @@ ControllerListener
 
 
 }// end of AVReceive2 
-
-
-
-

@@ -5,6 +5,9 @@
  *  Copyright (C) 2009 - File created for CS544 by Bill Shaya, Jordan Osecki, and Robert Cochran.
  */
 
+// Sources:  Parts of this class were created using the GUI plug-in for Eclipse. If you have any questions,
+//   don't hesitate to ask us.
+
 import javax.media.MediaLocator;
 import javax.swing.border.TitledBorder;
 import javax.swing.JPanel;
@@ -28,6 +31,7 @@ import java.awt.event.*;
 
 public class MainForm extends JFrame implements ActionListener
 {
+	// Private variables
 	private static boolean udpSetup = false;
 	private static boolean operator = false;
 	
@@ -100,6 +104,7 @@ public class MainForm extends JFrame implements ActionListener
 
 	private void InitGUI()
 	{
+		// Start most of the features disabled to force correct state
 		btnSockDisconnect.setEnabled(false); 	//disable socket disconnect button
 		btnConnect.setEnabled(false);			//disable connect button
 		btnDisconnect.setEnabled(false);		//disable disconnect button
@@ -128,6 +133,8 @@ public class MainForm extends JFrame implements ActionListener
 	@SuppressWarnings("deprecation")
 	public void actionPerformed(ActionEvent event) 
 	{			
+		// Determine which message is the one being causing the action
+		
 		if (event.getSource() == btnSocketConn)
 		{
 			// Validate the IP and TCP Port boxes are filled correctly, give an error if not
@@ -292,6 +299,7 @@ public class MainForm extends JFrame implements ActionListener
 		}
 		else if (event.getSource() == btnKick)
 		{
+			// Only allow the select if you are operator, if a name is selected, and it isn't your own name
 			if ( operator && listUsers.getSelectedIndex() != -1 && ! ((String)listUsers.getSelectedValue()).equals(nickname) )
 			{
 				CmdLib.CreateKickCommand(channelName, (String)listUsers.getSelectedValue());
@@ -304,6 +312,7 @@ public class MainForm extends JFrame implements ActionListener
 		}
 		else if (event.getSource() == btnBan)
 		{
+			// Only allow the select if you are operator, if a name is selected, and it isn't your own name
 			if ( operator && listUsers.getSelectedIndex() != -1 && ! ((String)listUsers.getSelectedValue()).equals(nickname) )
 			{
 				CmdLib.CreateBanCommand(channelName, (String)listUsers.getSelectedValue());
@@ -316,6 +325,7 @@ public class MainForm extends JFrame implements ActionListener
 		}
 		else if (event.getSource() == btnMute)
 		{
+			// Only allow the select if you are operator, if a name is selected, and it isn't your own name
 			if ( listUsers.getSelectedIndex() != -1 && ! ((String)listUsers.getSelectedValue()).equals(nickname) )
 			{
 				//get the user name
@@ -342,7 +352,8 @@ public class MainForm extends JFrame implements ActionListener
 		}
 		else if (event.getSource() == btnNewDesc)
 		{
-			if ( ! txtNewDesc.getText().equals("") )
+			// Only can do if you are an operator and submitting a non-blank description
+			if ( operator && ! txtNewDesc.getText().equals("") )
 			{
 				CmdLib.CreateNewDescCommand(channelName, txtNewDesc.getText());
 			}
@@ -359,24 +370,6 @@ public class MainForm extends JFrame implements ActionListener
 		else if (event.getSource() == btnRefreshChannels)
 		{
 			CmdLib.CreateGetChansCommand();
-		}
-		else
-		{
-			//			//this is a menu item
-			//			JMenuItem menuItem = (JMenuItem)event.getSource();
-			//
-			//			if (menuItem.getText() == "Connect")
-			//				CmdLib.CreateConnCommand("billNick", "127.0.0.1", "bill", "abcd");
-			//			else if (menuItem.getText() == "Disconnect")
-			//				CmdLib.CreateDisconnCommand("billNick");
-			//			else if (menuItem.getText() == "GetChans")
-			//				CmdLib.CreateGetChansCommand();
-			//			else if (menuItem.getText() == "GetUsers")
-			//				CmdLib.CreateGetUsersCommand("java");
-			//			else if (menuItem.getText() == "Join")
-			//				CmdLib.CreateJoinCommand("java", "billNick", "");
-			//			else if (menuItem.getText() == "Part")
-			//				CmdLib.CreatePartCommand("java", "billNick");
 		}
 	}	
 
@@ -397,6 +390,7 @@ public class MainForm extends JFrame implements ActionListener
 		}
 		else if (respMsg.getCommand().equals("GetUsers"))
 		{
+			// Populates the user list from the message
 			DefaultListModel dlm = new DefaultListModel();
 
 			for (int i = 0; i < respMsg.getUserNicks().size(); i++)
@@ -411,6 +405,7 @@ public class MainForm extends JFrame implements ActionListener
 		}
 		else if ( respMsg.getCommand().equals("Conn") )
 		{
+			// If successful, set up UDP port and GUI accordingly
 			if ( respMsg.getStatusCode() == 0 )
 			{
 				// Setting up UDP Port
@@ -602,9 +597,7 @@ public class MainForm extends JFrame implements ActionListener
 
 		//Add File menu item
 		JMenu fileMenu = new JMenu("File");  	 		 	    //create file item
-		//JMenuItem fileMenuItem1 = new JMenuItem("Open");	    //create open sub item
 		JMenuItem fileMenuItem2 = new JMenuItem("Quit");  		//create quit sub item
-		//fileMenu.add(fileMenuItem1);							//add menu items
 		fileMenu.add(fileMenuItem2);							//add menu items
 		menuBar.add(fileMenu);									//add file menu
 
@@ -616,49 +609,7 @@ public class MainForm extends JFrame implements ActionListener
 		helpMenu.add(helpMenuItem2);
 		menuBar.add(helpMenu);	
 
-		//Add Unit Test menu item
-		//JMenu testMenu = new JMenu("Unit Test");
-		//JMenuItem testMenuItem1 = new JMenuItem("Connect");  	//list sub item		
-		//JMenuItem testMenuItem2 = new JMenuItem("Disconnect"); 	//list sub item
-		//JMenuItem testMenuItem3 = new JMenuItem("GetChans"); 	//list sub item
-		//JMenuItem testMenuItem4 = new JMenuItem("GetUsers"); 	//list sub item
-		//JMenuItem testMenuItem5 = new JMenuItem("Join");	 	//list sub item
-		//JMenuItem testMenuItem6 = new JMenuItem("Part");	 	//list sub item
-		//testMenu.add(testMenuItem1);
-		//testMenu.add(testMenuItem2);
-		//testMenu.add(testMenuItem3);
-		//testMenu.add(testMenuItem4);
-		//testMenu.add(testMenuItem5);
-		//testMenu.add(testMenuItem6);
-		//menuBar.add(testMenu);
-
-		//Add action events to test menu items
-		//testMenuItem1.addActionListener(this);
-		//testMenuItem2.addActionListener(this);
-		//testMenuItem3.addActionListener(this);
-		//testMenuItem4.addActionListener(this);
-		//testMenuItem5.addActionListener(this);
-		//testMenuItem6.addActionListener(this);
-
 		this.setJMenuBar(menuBar);								//add the menu bar to the frame
-
-		// ActionListener for loadItem
-		//		fileMenuItem1.addActionListener(new ActionListener () 
-		//        {
-		//        	public void actionPerformed(ActionEvent arg0) 
-		//			{
-		//        		final JFileChooser fc = new JFileChooser();
-		//        		int returnVal = fc.showOpenDialog(getJFrame());
-		//
-		//                if (returnVal == JFileChooser.APPROVE_OPTION)
-		//                {
-		//                    File file = fc.getSelectedFile();
-		//                    
-		//                    // IMPLEMENT WHAT TO DO WITH FILE HERE
-		//                    System.out.println(file.getAbsolutePath());
-		//                } 
-		//			}
-		//        });
 
 		// ActionListener for exitItem
 		fileMenuItem2.addActionListener(new ActionListener () 

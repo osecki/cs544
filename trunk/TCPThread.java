@@ -5,6 +5,9 @@
  *  Copyright (C) 2009 - File created for CS544 by Bill Shaya, Jordan Osecki, and Robert Cochran.
  */
 
+// Sources:  Some of this code was based off of the socket code examples in class. if you have any
+//   questions, don't hesitate to ask.
+
 import java.io.IOException;
 import java.net.*;
 
