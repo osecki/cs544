@@ -5,6 +5,10 @@
  *  Copyright (C) 2009 - File created for CS544 by Bill Shaya, Jordan Osecki, and Robert Cochran.
  */
 
+// Sources:  Part of this file, along with all of the files within the com.* packages were generated using
+//   the XMLSpy software and are used only to generate and parse XML messages, as was specified also in our
+//   design document. If you have any questions, do not hesitate to ask.
+
 import java.util.Vector;
 import com.IRC.*;
 

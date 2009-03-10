@@ -9,14 +9,15 @@ import java.util.Vector;
 
 public class ResponseMessage 
 {
-	Long id;
-	String command;
-	Vector <String> channelNames;
-	Vector <String> channelDescs;
-	Vector <String> channelModes;
-	Vector <String> userNicks;
-	Long statusCode;
-	String statusMsg;
+	// Private variables possible in a parsed message
+	private Long id;
+	private String command;
+	private Vector <String> channelNames;
+	private Vector <String> channelDescs;
+	private Vector <String> channelModes;
+	private Vector <String> userNicks;
+	private Long statusCode;
+	private String statusMsg;
 	
 	/**
 	 * Constructor

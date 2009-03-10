@@ -5,6 +5,9 @@
  *  Copyright (C) 2009 - File used for CS544 by Bill Shaya, Jordan Osecki, and Robert Cochran.
  */
 
+// Source:  Much of this file was borrow from the JMF. Please read below for details. If you have
+//   any questions, don't hesitate to ask.
+
 /*
  * @(#)AVTransmit2.java	1.4 01/03/13
  *
@@ -45,7 +48,6 @@ import javax.media.format.*;
 import javax.media.control.TrackControl;
 import javax.media.control.QualityControl;
 import javax.media.rtp.*;
-//import javax.media.rtp.rtcp.*;
 
 public class UDPTransmitter extends Thread{
 
@@ -208,7 +210,6 @@ public class UDPTransmitter extends Thread{
 		return null;
 	}
 
-
 	/**
 	 * Use the RTPManager API to create sessions for each media 
 	 * track of the processor.
@@ -269,7 +270,6 @@ public class UDPTransmitter extends Thread{
 		return null;
 	}
 
-
 	/**
 	 * For JPEG and H263, we know that they only work for particular
 	 * sizes.  So we'll perform extra checking here to make sure they
@@ -312,7 +312,6 @@ public class UDPTransmitter extends Thread{
 				null,
 				Format.NOT_SPECIFIED)).intersects(supported);
 	}
-
 
 	/**
 	 * Setting the encoding quality to the specified value on the JPEG encoder.
@@ -421,7 +420,6 @@ public class UDPTransmitter extends Thread{
 		}
 	}
 
-
 	/****************************************************************
 	 * Sample Usage for AVTransmit2 class
 	 ****************************************************************/
@@ -458,4 +456,3 @@ public class UDPTransmitter extends Thread{
 		 */	
 	}
 }
-
