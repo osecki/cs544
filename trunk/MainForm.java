@@ -203,6 +203,24 @@ public class MainForm extends JFrame implements ActionListener
 			// Change button statuses
 			btnDisconnect.setEnabled(false);
 			btnSockDisconnect.setEnabled(true);
+			
+			btnJoin.setEnabled(false);
+			btnPart.setEnabled(false);
+			btnRefreshUsers.setEnabled(false);
+
+			// Reset ops
+			operator = false;
+			btnKick.setEnabled(false);
+			btnBan.setEnabled(false);
+			btnMute.setEnabled(false);
+			btnNewDesc.setEnabled(false);
+			MainForm.txtNewDesc.setEnabled(false);
+			
+			muteList.removeAllElements();
+
+			// Update bottom boxes
+			txtChannelDisplayName.setText("Not connected to any channel...");
+			MainForm.txtDescription.setText("(Description)");
 		}
 		else if (event.getSource() == btnJoin)
 		{
