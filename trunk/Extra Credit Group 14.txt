@@ -1,0 +1,4 @@
+Extra Credit Explanation
+Cochran, Osecki, and Shaya (Group 14)
+
+In order to have the client dynamically find the server, the server would have to implement a broadcast on the network.  The broadcast message would span all IP addresses on the local area network.  The server would need to send a particular message in the broadcast which would indicate that the message corresponds to the VIRC server.  Any client that is on the local area network would listen to a particular broadcast port and wait for the server message.  The server message would contain the actual port numbers for the TCP and UDP connections.  Upon receiving this message, the VIRC client can use this information to connect to the received IP address and port numbers.  This would solve the problem of having the server on an unknown IP and port combination.
